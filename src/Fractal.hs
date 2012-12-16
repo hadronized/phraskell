@@ -18,4 +18,4 @@ screen :: Float -> Float -> Screen
 screen w h = map (\x -> [ (x,y) | y <- [0..h-1] ]) [0..w-1]
 
 cartScreen :: Float -> Float -> Screen -> Screen
-cartScreen w h s = map (map (\(x,y) -> (2 * x / w - 1, - 2 * y / h))) s
+cartScreen w h s = map (map (\(x,y) -> (2 * x / (w-1) - 1, 1 - 2 * y / (h-1)))) s
