@@ -3,31 +3,35 @@ module Fractal where
 import Data.Complex
 
 type FComplex = Complex Float
+type Equation = (FComplex -> FComplex -> FComplex)
 
 -- mandelbrot sequence
 mandelbrot :: FComplex -> FComplex -> FComplex
 mandelbrot x1 c = x1 ^ 2 + c
 
 -- for x and y, evaluate the fractal equation
-evalFrac :: (FComplex -> FComplex -> FComplex) -> FComplex -> FComplex-> FComplex
+evalFrac :: Equation -> FComplex -> FComplex-> FComplex
 evalFrac e xy f = evalFrac (e) (e f xy) xy
 
 type Pixel = (Float,Float)
-type Screen = [[Pixel]]
+type Frame = [[Pixel]]
 
-screen :: Float -> Float -> Screen
+screen :: Float -> Float -> Frame
 screen w h = map (\x -> [ (x,y) | y <- [0..h-1] ]) [0..w-1]
 
 foreachPixel = map . map
 
--- convert a standard-coordinates screen into a cartesian-coordinates (origin-centered) one
-toCart :: Float -> Float -> Screen -> Screen
+toCart :: Float -> Float -> Frame -> Frame
 toCart w h s = foreachPixel (\(x,y) -> (2 * x / (w-1) - 1, 1 - 2 * y / (h-1))) s
 
--- fractal zoom, take a zoom factor (2.0 means to zoom in with a coef of 2), and zoom around the origin
-oZoom :: Float -> Screen -> Screen
-oZoom z s = foreachPixel (\(x,y) -> (x/z, y/z)) s
+oZoom :: Float -> Frame -> Frame
+oZoom z s = foreachPixel (\(x,y) -> (x/z,y/z)) s
 
--- fractal translation
-translate :: Float -> Float -> Screen -> Screen
-translate rx ry s = foreachPixel (\(x,y) -> (x+rx,y+ry)) s
+offsets :: Float -> Float -> Frame -> Frame
+offsets rx ry s = foreachPixel (\(x,y) -> (x+rx,y+ry)) s
+
+type IterFrame = [[Int]]
+
+-- take a fractal sequence, the x and y offsets, a zoom factor and evaluate the fractal sequence
+mkIterFrame :: Equation -> Int -> Int -> Float -> Frame -> IterFrame
+mkIterFrame rx ry z s e =  oZoom z $ offsets rx ry s
