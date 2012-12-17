@@ -10,8 +10,12 @@ mandelbrot :: FComplex -> FComplex -> FComplex
 mandelbrot x1 c = x1 ^ 2 + c
 
 -- for x and y, evaluate the fractal equation
-evalFrac :: Equation -> FComplex -> FComplex-> FComplex
-evalFrac e xy f = evalFrac (e) (e f xy) xy
+evalFrac :: Equation -> FComplex -> FComplex -> Integer -> Integer
+evalFrac e xy f m = go xy f 0
+    where go xy f i
+            | i >= m = m
+            | realPart (abs xy) > 2.0 = i
+            | otherwise = go (e f xy) xy (i+1)
 
 type Pixel = (Float,Float)
 type Frame = [[Pixel]]
