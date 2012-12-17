@@ -37,5 +37,5 @@ offsets rx ry s = foreachPixel (\(x,y) -> (x+rx,y+ry)) s
 type IterFrame = [[Int]]
 
 -- take a fractal sequence, the x and y offsets, a zoom factor and evaluate the fractal sequence
-mkIterFrame :: Equation -> Int -> Int -> Float -> Frame -> IterFrame
-mkIterFrame rx ry z s e =  oZoom z $ offsets rx ry s
+--mkIterFrame :: Equation -> Int -> Int -> Float -> Frame -> IterFrame
+--mkIterFrame rx ry z s e =  oZoom z $ offsets rx ry s
