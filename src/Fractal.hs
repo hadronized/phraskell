@@ -23,19 +23,21 @@ type Frame = [[Pixel]]
 screen :: Float -> Float -> Frame
 screen w h = map (\x -> [ (x,y) | y <- [0..h-1] ]) [0..w-1]
 
-foreachPixel = map . map
+toCart :: Float -> Float -> Pixel -> Pixel
+toCart w h (x,y) = (2 * x / (w-1) - 1, 1 - 2 * y / (h-1))
 
-toCart :: Float -> Float -> Frame -> Frame
-toCart w h s = foreachPixel (\(x,y) -> (2 * x / (w-1) - 1, 1 - 2 * y / (h-1))) s
+oZoom :: Float -> Pixel -> Pixel
+oZoom z (x,y) = (x/z,y/z)
 
-oZoom :: Float -> Frame -> Frame
-oZoom z s = foreachPixel (\(x,y) -> (x/z,y/z)) s
+offsets :: Float -> Float -> Pixel -> Pixel
+offsets rx ry (x,y) = (x+rx,y+ry)
 
-offsets :: Float -> Float -> Frame -> Frame
-offsets rx ry s = foreachPixel (\(x,y) -> (x+rx,y+ry)) s
+type IterFrame = [[Integer]]
 
-type IterFrame = [[Int]]
-
--- take a fractal sequence, the x and y offsets, a zoom factor and evaluate the fractal sequence
---mkIterFrame :: Equation -> Int -> Int -> Float -> Frame -> IterFrame
---mkIterFrame rx ry z s e =  oZoom z $ offsets rx ry s
+-- make the iterations frame
+-- take w, h, rx, ry, z and the fractal equation
+mkIterFrame :: Float -> Float -> Float -> Float -> Float -> Equation -> IterFrame
+mkIterFrame w h rx ry z e =
+    let frame = (map . map $ (offsets rx ry) . (oZoom z) . (toCart w h)) $ screen w h
+        eval  = (map . map $ (\(x,y) -> (evalFrac e (x :+ y) (fromInteger 0) 100)))
+    in eval frame
