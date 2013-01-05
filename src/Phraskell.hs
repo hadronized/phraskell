@@ -1,7 +1,8 @@
+import Control.Monad
 import Fractal
 import Render
 
-main = withInit [InitVideo] $ do
+main = do
   screen <- tryGetScreen width height depth title
   case screen of
     Just s -> loop s
@@ -15,3 +16,4 @@ main = withInit [InitVideo] $ do
     
     loop screen = do
       -- first of all, handle events
+      forever $ return ()
