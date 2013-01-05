@@ -26,16 +26,6 @@ putPixel p s (u,v) = do
   pixels <- castPtr `liftM` surfaceGetPixels s
   pokeElemOff pixels (u + v*surfaceGetWidth s) p
 
-{- We simply need to traverse the iteration frame, and foreach iteration, transform it into
- - a pixel using the pixelize function, then write that pixel in the surface at the correct addrees.
- - We are about to need some functions:
- -  · the first one will be used to put a pixel in a surface; it takes the pixel to output, the surface
- -    and where in the surface we wanna put the pixel; ALREADY DONE
- -  · the second one is pixelize; we’ll use the nextColor function for that job
- -  · then, we need a function that apply the pixelize function on every pixels using the given iteration frame
- -    and surface
--}
-
 -- pixelize an iteration value
 pixelize :: Integer -> SDL.Pixel
 pixelize i = Pixel $ (shift r 16) + (shift g 8) + b
