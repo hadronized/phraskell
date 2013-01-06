@@ -45,7 +45,7 @@ parseOpts args =
 main = do
   screen <- tryGetScreen width height depth title
   case screen of
-    Just s -> loop
+    Just s -> loop s
     _      -> return ()
   putStrLn "Bye!"
 
@@ -55,17 +55,20 @@ main = do
     depth  = 32
     title  = "Phraskell"
     
-    loop = do
-      quit <- treatEvents
-      unless quit loop
+    loop s = do
+      quit <- treatEvents s
+      unless quit $ loop s
 
 -- events handler
-treatEvents :: IO Bool
-treatEvents = do
+treatEvents :: Surface -> IO Bool
+treatEvents screen = do
   event <- waitEvent
   case event of
     NoEvent  -> return False
     Quit     -> return True
-    KeyUp k  -> if symKey k == SDLK_ESCAPE then return True else treatEvents
-    _        -> treatEvents
+    KeyUp k  -> case symKey k of
+       SDLK_ESCAPE -> return True
+       SDLK_RETURN -> return True
+       _           -> treatEvents screen
+    _        -> treatEvents screen
 
