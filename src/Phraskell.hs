@@ -1,12 +1,51 @@
 import Control.Monad
+import Control.Monad.Trans.Maybe
 import Fractal
+import Graphics.UI.SDL as SDL
 import Render
+import System.Environment
+import System.Console.GetOpt
+
+-- TODO: add fullscreen support
+data App = App { appWidth :: Float,
+                 appHeight :: Float,
+                 appRX :: Float,
+                 appRY :: Float,
+                 appZoom :: Float,
+                 appEquation :: Equation,
+                 appIterFrame :: IterFrame }
+
+data Flag
+  = FVersion       -- version of the program
+  | FFullscreen    -- should the app in fullscreen mode?
+  | FWidth String  -- width of the screen
+  | FHeight String -- heigth of the sceen
+  | FRX String     -- relative x value
+  | FRY String     -- relative y value
+  | FZoom String   -- zoom value
+
+options :: [OptDescr Flag]
+options =
+  [ Option ['v','?'] ["version", "about"] (NoArg FVersion)           "show version"
+  , Option ['w']     ["width"]            (ReqArg FWidth "WIDTH")    "width of window"
+  , Option ['h']     ["heigth"]           (ReqArg FHeight "HEIGHT")  "height of the window"
+  , Option ['x']     ["rx","relx"]        (ReqArg FRX "RELX")        "x displacement"
+  , Option ['y']     ["ry","rely"]        (ReqArg FRY "RELY")        "y displacement"
+  , Option ['z']     ["zoom"]             (ReqArg FZoom "ZOOM")      "zoom factor"
+  ]
+
+parseOpts :: [String] -> MaybeT IO ([Flag], [String])
+parseOpts args =
+  case getOpt Permute options args of
+    (o,n,[])   -> return (o,n)
+    (_,_,errs) -> mzero
 
 main = do
   screen <- tryGetScreen width height depth title
   case screen of
-    Just s -> loop s
+    Just s -> loop
     _      -> return ()
+  putStrLn "Bye!"
 
   where
     width  = 800
@@ -14,6 +53,17 @@ main = do
     depth  = 32
     title  = "Phraskell"
     
-    loop screen = do
-      -- first of all, handle events
-      forever $ return ()
+    loop = do
+      quit <- treatEvents
+      unless quit loop
+
+-- events handler
+treatEvents :: IO Bool
+treatEvents = do
+  event <- waitEvent
+  case event of
+    NoEvent  -> return False
+    Quit     -> return True
+    KeyUp k  -> if symKey k == SDLK_ESCAPE then return True else treatEvents
+    _        -> treatEvents
+
