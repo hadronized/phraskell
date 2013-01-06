@@ -7,13 +7,15 @@ import System.Environment
 import System.Console.GetOpt
 
 -- TODO: add fullscreen support
-data App = App { appWidth :: Float,
-                 appHeight :: Float,
-                 appRX :: Float,
-                 appRY :: Float,
-                 appZoom :: Float,
-                 appEquation :: Equation,
-                 appIterFrame :: IterFrame }
+data App = App {
+  appWidth :: Float,
+  appHeight :: Float,
+  appRX :: Float,
+  appRY :: Float,
+  appZoom :: Float,
+  appEquation :: Equation,
+  appIterFrame :: IterFrame
+  }
 
 data Flag
   = FVersion       -- version of the program
