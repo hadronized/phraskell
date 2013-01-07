@@ -18,6 +18,10 @@ data App = App {
   appEquation :: Equation,
   appIterFrame :: IterFrame
   }
+  
+-- the state of the application is its parameters (App) and
+-- a boolean that states if it’s running 
+type AppState = State App Bool
 
 data Flag
   = FVersion       -- version of the program
@@ -38,11 +42,17 @@ options =
   , Option ['z']     ["zoom"]             (ReqArg FZoom "ZOOM")      "zoom factor"
   ]
 
-parseOpts :: [String] -> MaybeT IO ([Flag], [String])
+parseOpts :: [String] -> MaybeT IO ([Flag],[String])
 parseOpts args =
   case getOpt Permute options args of
     (o,n,[])   -> return (o,n)
     (_,_,errs) -> mzero
+
+
+initApp :: MaybeT IO ([Flag,[String]) -> IO AppState
+initApp maybeOpts = do
+  opts <- runMaybeT maybeOpts
+  -- fuck what next? :D
 
 main = do
   screen <- tryGetScreen width height depth title
@@ -62,7 +72,7 @@ main = do
       unless quit $ loop s
 
 -- events handler
-treatEvents :: Surface -> IO Bool
+treatEvents :: App -> IO (App,Bool)
 treatEvents screen = do
   event <- waitEvent
   case event of
