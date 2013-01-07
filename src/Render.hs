@@ -29,7 +29,7 @@ putPixel p s (u,v) = do
 -- pixelize an iteration value
 pixelize :: Integer -> SDL.Pixel
 pixelize i = Pixel $ (shift r 16) + (shift g 8) + b
-  where (r,g,b) = toWord32 $ nextColor i red
+  where (r,g,b) = toWord32 $ decodeColor i
         toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
 
 -- pixelize an entire SDL Surface
@@ -43,25 +43,21 @@ pixelizeSurface iterf surface = do
 -- to move in some utils module
 type RGBColor = (Word8,Word8,Word8)
 
-red :: RGBColor
-red = (255,0,0)
-
-nextColor :: Integer -> RGBColor -> RGBColor
-nextColor 0 (r,g,b) = (r,g,b)
-nextColor i (r,g,b) =
-  case (r,g,b) of
-    -- remarkable values
-    (255,0,0)   -> (255,iw,0)
-    (255,255,0) -> (255-iw,255,0)
-    (0,255,0)   -> (0,255,iw)
-    (0,255,255) -> (0,255-iw,255)
-    (0,0,255)   -> (iw,0,255)
-    (255,0,255) -> (255,0,255-iw)
-    -- other values
-    (255,g,0)   -> (255,g+iw,0)
-    (r,255,0)   -> (r-iw,255,0)
-    (0,255,b)   -> (0,255,b+iw)
-    (0,g,255)   -> (0,g-iw,255)
-    (r,0,255)   -> (r+iw,0,255)
-    (255,0,b)   -> (255,0,b-iw)
-  where iw = fromIntegral i
+-- decode a rainbow color
+decodeColor :: Integer -> RGBColor
+decodeColor i
+  | isRed c    = (255,contrib,0)
+  | isYellow c = (ncontrib,255,0)
+  | isGreen c  = (0,255,contrib)
+  | isAzure c  = (0,ncontrib,255)
+  | isBlue  c  = (contrib,0,255)
+  | otherwise  = (255,0,ncontrib)
+    where cr        = 255 -- color range - 1
+          contrib   = fromIntegral $ (c `mod` cr)
+          ncontrib  = fromIntegral $ 255 - contrib
+          c         = i `mod` (6*cr)
+          isRed     = (<cr)
+          isYellow  = (<2*cr)
+          isGreen   = (<3*cr)
+          isAzure   = (<4*cr)
+          isBlue    = (<5*cr)
