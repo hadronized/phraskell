@@ -73,4 +73,3 @@ treatEvents screen = do
        SDLK_RETURN -> return True
        _           -> treatEvents screen
     _        -> treatEvents screen
-
