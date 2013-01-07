@@ -49,7 +49,7 @@ parseOpts args =
     (_,_,errs) -> mzero
 
 
-initApp :: MaybeT IO ([Flag,[String]) -> IO AppState
+initApp :: MaybeT IO ([Flag],[String]) -> IO AppState
 initApp maybeOpts = do
   opts <- runMaybeT maybeOpts
   -- fuck what next? :D
