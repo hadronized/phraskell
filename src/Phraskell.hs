@@ -1,7 +1,9 @@
 module Phraskell where
 
 import Control.Monad
+import Control.Monad.State
 import Control.Monad.Trans.Maybe
+import Equations
 import Fractal
 import Graphics.UI.SDL as SDL
 import Render
@@ -42,22 +44,32 @@ options =
   , Option ['z']     ["zoom"]             (ReqArg FZoom "ZOOM")      "zoom factor"
   ]
 
+
+createApp :: AppState
+createApp = put App 800.0 600.0 0.0 0.0 1.0 mandelbrotEquation [[]]
+
 parseOpts :: [String] -> MaybeT IO ([Flag],[String])
 parseOpts args =
   case getOpt Permute options args of
     (o,n,[])   -> return (o,n)
     (_,_,errs) -> mzero
 
-
-initApp :: MaybeT IO ([Flag],[String]) -> IO AppState
+{-
+initApp :: MaybeT IO ([Flag],[String]) -> MaybeT IO AppState
 initApp maybeOpts = do
   opts <- runMaybeT maybeOpts
-  -- fuck what next? :D
+  maybeFlag <- opts
+  case maybeFlag of
+    Just x = return $ initWithFlags x
+    _      = mzero
+    where initWithFlags 
+    -}
 
 main = do
+  let app = createApp
   screen <- tryGetScreen width height depth title
   case screen of
-    Just s -> loop s
+    Just s -> loop app
     _      -> return ()
   putStrLn "Bye!"
 
@@ -67,19 +79,19 @@ main = do
     depth  = 32
     title  = "Phraskell"
     
-    loop s = do
-      quit <- treatEvents s
-      unless quit $ loop s
+    loop a = do
+      newApp <- treatEvents a
+      unless quit $ loop newApp
 
 -- events handler
-treatEvents :: App -> IO (App,Bool)
-treatEvents screen = do
+treatEvents :: AppState -> IO AppState
+treatEvents app = do
   event <- waitEvent
   case event of
     NoEvent  -> return False
     Quit     -> return True
     KeyUp k  -> case symKey k of
-       SDLK_ESCAPE -> return True
-       SDLK_RETURN -> return True
-       _           -> treatEvents screen
-    _        -> treatEvents screen
+       SDLK_ESCAPE -> app >>= return True
+       SDLK_RETURN -> app >>= return True
+       _           -> treatEvents app
+    _        -> treatEvents app
