@@ -72,8 +72,8 @@ modifyAppWithOpt app f = case f of
 
 -- entry point
 main = do
-  --let app = App 800 600 0 0 1 mandelbrotEquation []
-  {-screen <- tryGetScreen width height depth title
+  let app = App 800 600 0 0 1 mandelbrotEquation []
+  screen <- tryGetScreen width height depth title{-
   case screen of
     Just s -> loop app
     _      -> return ()
