@@ -5,10 +5,6 @@ import Data.Complex
 type FComplex = Complex Float
 type Equation = (FComplex -> FComplex -> FComplex)
 
--- mandelbrot sequence
-mandelbrot :: FComplex -> FComplex -> FComplex
-mandelbrot x1 c = x1 ^ 2 + c
-
 -- for x and y, evaluate the fractal equation
 evalFrac :: Equation -> FComplex -> FComplex -> Integer -> Integer
 evalFrac e xy f m = go xy f 0
