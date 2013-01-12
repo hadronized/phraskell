@@ -2,12 +2,10 @@ module Render where
 
 import Data.Bits
 import Control.Monad
-import Control.Monad.Trans.Maybe
 import Foreign
 import Fractal
 import Graphics.UI.SDL as SDL
 
--- TODO: use MaybeT instead
 tryGetScreen :: Int -> Int -> Int -> String -> IO (Maybe Surface)
 tryGetScreen w h d t = do
   SDL.init [InitVideo]

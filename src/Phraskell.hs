@@ -1,16 +1,11 @@
-module Phraskell where
-
 import Control.Monad
 import Control.Monad.State
-import Control.Monad.Trans.Maybe
 import Equations
 import Fractal
 import Graphics.UI.SDL as SDL
 import Render
 import System.Environment
 import System.Console.GetOpt
-
-type MIO m = MaybeT IO m
 
 -- TODO: add fullscreen support
 data App = App {
@@ -46,18 +41,17 @@ options =
   , Option ['z']     ["zoom"]             (ReqArg FZoom "ZOOM")      "zoom factor"
   ]
 
-parseOpts :: [String] -> MIO ([Flag],[String])
+parseOpts :: [String] -> IO (Maybe ([Flag],[String]))
 parseOpts args =
   case getOpt Permute options args of
-    (o,n,[])   -> return (o,n)
-    (_,_,errs) -> mzero
+    (o,n,[])   -> return $ Just (o,n)
+    (_,_,errs) -> return Nothing
 
-initApp :: App -> MIO ([Flag],[String]) -> MIO AppState
-initApp app maybeOpts = do
-  (flags,_) <- maybeOpts
-  return $ do
-    put $ app `initWithFlags` flags
-    return True 
+initApp :: App -> ([Flag],[String]) -> Maybe AppState
+initApp app (flags,_) = do
+    return $ do
+      put $ app `initWithFlags` flags
+      return True 
  where initWithFlags a f = foldl modifyAppWithOpt a f
 
 -- alter an application regarding an option flag
@@ -72,28 +66,40 @@ modifyAppWithOpt app f = case f of
 
 -- entry point
 main = do
-  let app = App 800 600 0 0 1 mandelbrotEquation []
-  screen <- tryGetScreen width height depth title{-
-  case screen of
-    Just s -> loop app
-    _      -> return ()
-    -}
+  -- get the options
+  args <- getArgs
+  maybeCliOpts <- parseOpts args
+  case maybeCliOpts of
+    Nothing -> return ()
+    Just x  -> withOpts x
   putStrLn "Bye!"
 
   where
-    width  = 800
-    height = 600
-    depth  = 32
-    title  = "Phraskell"
-    
-    {-
+    withOpts cliOpts = do
+      -- create and init the application
+      let app = App width height 0 0 1 mandelbrotEquation []
+      maybeAppState <- lift $ initApp app cliOpts
+      case maybeAppState of
+        Nothing -> return ()
+        Just x  -> withAppState x
+
+    withAppState app = do
+      screen <- tryGetScreen width height depth title
+      case screen of
+        Just s -> loop app
+        _      -> return ()
+
     loop a = do
       newApp <- treatEvents a
+      let (quit,_) = runState newApp
       unless quit $ loop newApp
-      -}
+
+    width  = 800.0
+    height = 600.0
+    depth  = 32.0
+    title  = "Phraskell"
 
 -- events handler
-{-
 treatEvents :: AppState -> IO AppState
 treatEvents app = do
   event <- waitEvent
@@ -105,4 +111,3 @@ treatEvents app = do
        SDLK_RETURN -> app >>= return True
        _           -> treatEvents app
     _        -> treatEvents app
-    -}
