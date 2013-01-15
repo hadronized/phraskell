@@ -26,6 +26,13 @@ data App = App {
   , appScreen :: Surface
   }
   
+instance Show App where
+  show app = "[" ++ show (appWidth app) ++ ","
+                 ++ show (appHeight app) ++ ","
+                 ++ show (appRX app) ++ ","
+                 ++ show (appRY app) ++ ","
+                 ++ show (appZoom app) ++ "]"
+
 -- the state of the application is its parameters (App) and
 -- a boolean that states if it’s running 
 type AppState = State App Bool
@@ -103,8 +110,17 @@ treatEvents app = do
     KeyUp k  -> case symKey k of
       SDLK_ESCAPE -> quit
       SDLK_RETURN -> quit
-      SDLK_u      -> putStrLn "u!" >> nochange
+      SDLK_u      -> update
       _           -> treatEvents app
     _        -> treatEvents app
  where nochange = return $ (False,app)
        quit     = return $ (True,app)
+       update = do
+         -- the first thing to do is to compute the actual fractal equation for each pixel
+         let iterf = mkIterFrame (appWidth app) (appHeight app) (appRX app) (appRY app) (appZoom app) (appEquation app)
+         -- then, update the screen regarding the brand new iterframe
+         putStr $ "updating fractal " ++ show app ++ "... "
+         pixelizeSurface iterf (appScreen app)
+         putStrLn "done!"
+         -- and finaly, returned the altered application
+         return (False,app { appIterFrame = iterf })
