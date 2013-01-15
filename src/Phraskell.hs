@@ -87,6 +87,7 @@ main = do
   case maybeCliOpts of
     Nothing -> usage
     Just flags  -> do
+      -- TODO: not so fast, we have to check if there’s not version flag
       -- here we have options, so let’s create our very first application ! but before, create the screen
       withInit [InitVideo] $ do
         maybeScreen <- trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
