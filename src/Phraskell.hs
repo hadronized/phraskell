@@ -16,13 +16,14 @@ title  = "Phraskell"
 
 -- TODO: add fullscreen support
 data App = App {
-  appWidth :: Float,
-  appHeight :: Float,
-  appRX :: Float,
-  appRY :: Float,
-  appZoom :: Float,
-  appEquation :: Equation,
-  appIterFrame :: IterFrame
+    appWidth :: Float
+  , appHeight :: Float
+  , appRX :: Float
+  , appRY :: Float
+  , appZoom :: Float
+  , appEquation :: Equation
+  , appIterFrame :: IterFrame
+  , appScreen :: Surface
   }
   
 -- the state of the application is its parameters (App) and
@@ -85,7 +86,7 @@ main = do
         case maybeScreen of
           Nothing -> putStrLn "unable to get a screen! :("
           Just screen -> do
-            let app = initApp (App width height 0.0 0.0 1.0 mandelbrotEquation []) flags -- the application
+            let app = initApp (App width height 0.0 0.0 1.0 mandelbrotEquation [] screen) flags -- the application
             loop app
             putStrLn "Bye!"
               where loop app = do
@@ -97,10 +98,13 @@ treatEvents :: App -> IO (Bool,App)
 treatEvents app = do
   event <- waitEvent
   case event of
-    NoEvent  -> return $ (False,app)
-    Quit     -> return $ (False,app)
+    NoEvent  -> nochange
+    Quit     -> nochange
     KeyUp k  -> case symKey k of
-      SDLK_ESCAPE -> return $ (True,app)
-      SDLK_RETURN -> return $ (True,app)
+      SDLK_ESCAPE -> quit
+      SDLK_RETURN -> quit
+      SDLK_u      -> putStrLn "u!" >> nochange
       _           -> treatEvents app
     _        -> treatEvents app
+ where nochange = return $ (False,app)
+       quit     = return $ (True,app)
