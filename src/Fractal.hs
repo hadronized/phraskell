@@ -19,8 +19,8 @@ type Frame = [[Pixel]]
 screen :: Float -> Float -> Frame
 screen w h = map (\x -> [ (x,y) | y <- [0..h-1] ]) [0..w-1]
 
-toCart :: Float -> Float -> Pixel -> Pixel
-toCart w h (x,y) = (2 * x / (w-1) - 1, 1 - 2 * y / (h-1))
+toCart :: Float -> Float -> Float -> Pixel -> Pixel
+toCart w h r (x,y) = ((2 * x / w - 1)*r, 2 * (1 - y / h) - 1)
 
 oZoom :: Float -> Pixel -> Pixel
 oZoom z (x,y) = (x/z,y/z)
@@ -34,6 +34,7 @@ type IterFrame = [[Integer]]
 -- take w, h, rx, ry, z and the fractal equation
 mkIterFrame :: Float -> Float -> Float -> Float -> Float -> Equation -> IterFrame
 mkIterFrame w h rx ry z e =
-    let frame = (map . map $ (offsets rx ry) . (oZoom z) . (toCart w h)) $ screen w h
-        eval  = (map . map $ (\(x,y) -> (evalFrac e (x :+ y) (fromInteger 0) 100)))
+    let frame = (map . map $ (offsets rx ry) . (oZoom z) . (toCart w h ratio)) $ screen w h
+        eval  = (map . map $ (\(x,y) -> (evalFrac e (x :+ y) (fromInteger 0) 50)))
+        ratio = w / h
     in eval frame

@@ -6,6 +6,7 @@ import Graphics.UI.SDL as SDL
 import Render
 import System.Environment
 import System.Console.GetOpt
+import System.IO
 
 width,height,depth :: Float
 title :: String
@@ -82,6 +83,8 @@ modifyAppWithOpt app f = case f of
 
 -- entry point
 main = do
+  hSetBuffering stdout NoBuffering
+
   args <- getArgs -- get the CLI options
   maybeCliOpts <- parseOpts args -- maybe get the options
   case maybeCliOpts of
@@ -99,12 +102,14 @@ main = do
             putStrLn "Bye!"
               where loop app = do
                       (quit,newApp) <- treatEvents app
+                      SDL.flip $ appScreen app
                       unless quit $ loop newApp
 
 -- events handler
 treatEvents :: App -> IO (Bool,App)
 treatEvents app = do
   event <- waitEvent
+
   case event of
     NoEvent  -> nochange
     Quit     -> nochange
@@ -117,10 +122,10 @@ treatEvents app = do
  where nochange = return $ (False,app)
        quit     = return $ (True,app)
        update = do
+         putStr $ "updating fractal " ++ show app ++ "... "
          -- the first thing to do is to compute the actual fractal equation for each pixel
          let iterf = mkIterFrame (appWidth app) (appHeight app) (appRX app) (appRY app) (appZoom app) (appEquation app)
          -- then, update the screen regarding the brand new iterframe
-         putStr $ "updating fractal " ++ show app ++ "... "
          pixelizeSurface iterf (appScreen app)
          putStrLn "done!"
          -- and finaly, returned the altered application
