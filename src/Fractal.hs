@@ -9,7 +9,7 @@ type Equation = (FComplex -> FComplex -> FComplex)
 evalFrac :: Equation -> FComplex -> FComplex -> Integer -> Integer
 evalFrac e z1 xy1 m = go z1 xy1 0
   where go z@(rp :+ ip) xy i
-          | i >= m = m
+          | i > m = -1
           | rp^2 + ip^2 > 4.0 = i
           | otherwise = go (e z xy) xy (i+1)
 
@@ -35,6 +35,6 @@ type IterFrame = [[Integer]]
 mkIterFrame :: Float -> Float -> Float -> Float -> Float -> Equation -> IterFrame
 mkIterFrame w h rx ry z e =
   let frame = (map . map $ (offsets rx ry) . (oZoom z) . (toCart w h ratio)) $ screen w h
-      eval  = (map . map $ (\(x,y) -> (evalFrac e (fromInteger 0) (x :+ y) 50)))
+      eval  = (map . map $ (\(x,y) -> (evalFrac e (fromInteger 0) (x :+ y) 500)))
       ratio = w / h
   in eval frame

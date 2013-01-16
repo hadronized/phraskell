@@ -28,7 +28,8 @@ putPixel p s (u,v) = do
 
 -- pixelize an iteration value
 pixelize :: Integer -> SDL.Pixel
-pixelize i = Pixel $ (shift r 16) + (shift g 8) + b
+pixelize (-1) = Pixel (0 :: Word32)
+pixelize i  = Pixel $ (shift r 16) + (shift g 8) + b
   where (r,g,b) = toWord32 $ decodeColor i
         toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
 
