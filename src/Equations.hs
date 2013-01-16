@@ -4,4 +4,4 @@ import Fractal (Equation)
 
 -- mandelbrot sequence
 mandelbrotEquation :: Equation
-mandelbrotEquation x1 c = x1 ^ 2 + c
+mandelbrotEquation z c = z^2 + c
