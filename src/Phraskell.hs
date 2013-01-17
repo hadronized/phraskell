@@ -129,8 +129,11 @@ treatEvents app = do
              rh = appHeight app / zf
              rx = mx - rw / 2
              ry = my - rh / 2
-         zoomSurf <- createRGBSurface [HWSurface] (floor rw) (floor rh) 32 0 0 0 0
-         setAlpha zoomSurf [SrcAlpha] 127 -- TODO: Bool, what for?
+         maybeZoomSurf <- tryCreateRGBSurface [HWSurface] (floor rw) (floor rh) 32 0 0 0 0
+         case maybeZoomSurf of
+           Nothing ->
+           Just zoomSurf -> do
+             setAlpha zoomSurf [SrcAlpha] 127 -- TODO: Bool, what for?
          nochange
        update = do
          putStr $ "updating fractal " ++ show app ++ "... "
