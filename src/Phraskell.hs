@@ -113,6 +113,7 @@ treatEvents app = do
   case event of
     NoEvent  -> nochange
     Quit     -> nochange
+    MouseMotion x y rx ry -> onMouseMotion (fromIntegral x) (fromIntegral y)
     KeyUp k  -> case symKey k of
       SDLK_ESCAPE -> quit
       SDLK_RETURN -> quit
@@ -121,6 +122,16 @@ treatEvents app = do
     _        -> treatEvents app
  where nochange = return $ (False,app)
        quit     = return $ (True,app)
+       onMouseMotion mx my = do
+         -- first, create the Rect that defines the cursor position according to the mouse position
+         let zf = appZoom app
+             rw = appWidth app / zf
+             rh = appHeight app / zf
+             rx = mx - rw / 2
+             ry = my - rh / 2
+         zoomSurf <- createRGBSurface [HWSurface] (floor rw) (floor rh) 32 0 0 0 0
+         setAlpha zoomSurf [SrcAlpha] 127 -- TODO: Bool, what for?
+         nochange
        update = do
          putStr $ "updating fractal " ++ show app ++ "... "
          -- the first thing to do is to compute the actual fractal equation for each pixel
