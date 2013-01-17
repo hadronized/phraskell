@@ -125,16 +125,20 @@ treatEvents app = do
        onMouseMotion mx my = do
          -- first, create the Rect that defines the cursor position according to the mouse position
          let zf = appZoom app
-             rw = appWidth app / zf
-             rh = appHeight app / zf
-             rx = mx - rw / 2
-             ry = my - rh / 2
-         maybeZoomSurf <- tryCreateRGBSurface [HWSurface] (floor rw) (floor rh) 32 0 0 0 0
+             rw = floor $ appWidth app / zf
+             rh = floor $ appHeight app / zf
+             rx = mx - rw `div` 2
+             ry = my - rh `div` 2
+         maybeZoomSurf <- tryCreateRGBSurface [HWSurface] rw rh 32 0 0 0 0
          case maybeZoomSurf of
-           Nothing ->
+           Nothing -> nochange
            Just zoomSurf -> do
              setAlpha zoomSurf [SrcAlpha] 127 -- TODO: Bool, what for?
-         nochange
+             pixel <- mapRGB (surfaceGetPixelFormat zoomSurf) 60 60 60
+             fillRect zoomSurf Nothing pixel
+             blitSurface zoomSurf Nothing (appScreen app) (Just $ Rect rx ry rw rh)
+             freeSurface $ zoomSurf
+             nochange
        update = do
          putStr $ "updating fractal " ++ show app ++ "... "
          -- the first thing to do is to compute the actual fractal equation for each pixel
