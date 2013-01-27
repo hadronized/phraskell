@@ -8,6 +8,7 @@ import System.Environment
 import System.Console.GetOpt
 import System.IO
 
+-- application defaults
 width,height,depth :: Float
 title :: String
 width  = 800
@@ -17,16 +18,17 @@ title  = "Phraskell"
 
 -- TODO: add fullscreen support
 data App = App {
-    appWidth :: Float
-  , appHeight :: Float
-  , appRX :: Float
-  , appRY :: Float
-  , appZoom :: Float
-  , appEquation :: Equation
-  , appIterFrame :: IterFrame
-  , appScreen :: Surface
+    appWidth :: Float           -- width of the window (and subsequently the fractal frame)
+  , appHeight :: Float          -- height of the window (ditto)
+  , appRX :: Float              -- relative x offset of the viewer
+  , appRY :: Float              -- relative y offset of the viewer
+  , appZoom :: Float            -- zoom factor of the viewer
+  , appEquation :: Equation     -- equation to render
+  , appIterFrame :: IterFrame   -- iteration frame
+  , appScreen :: Surface        -- screen surface
+  , appFractalFrame :: Surface  -- fractal surface
   }
-  
+
 instance Show App where
   show app = "[" ++ show (appWidth app) ++ ","
                  ++ show (appHeight app) ++ ","
@@ -34,10 +36,7 @@ instance Show App where
                  ++ show (appRY app) ++ ","
                  ++ show (appZoom app) ++ "]"
 
--- the state of the application is its parameters (App) and
--- a boolean that states if itâ€™s running 
-type AppState = State App Bool
-
+-- CLI flag used to customize the application’s behavior
 data Flag
   = FVersion       -- version of the program
   | FFullscreen    -- should the app in fullscreen mode?
@@ -47,9 +46,11 @@ data Flag
   | FRY String     -- relative y value
   | FZoom String   -- zoom value
 
+-- Display some usage informantion on standard output
 usage :: IO ()
 usage = putStrLn $ usageInfo "usage: phraskell [OPTIONS]" options
 
+-- All possible CLI options
 options :: [OptDescr Flag]
 options =
   [ Option ['v','?'] ["version", "about"] (NoArg FVersion)           "show version"
@@ -60,18 +61,20 @@ options =
   , Option ['z']     ["zoom"]             (ReqArg FZoom "ZOOM")      "zoom factor"
   ]
 
+-- Parse options and maybe return a tuple of filled flags and non-options
 parseOpts :: [String] -> IO (Maybe ([Flag],[String]))
 parseOpts args =
   case getOpt Permute options args of
     (o,n,[])   -> return $ Just (o,n)
     (_,_,errs) -> return Nothing
 
+-- Initialize the given application with CLI options
 initApp :: App -> ([Flag],[String]) -> App
 initApp app (flags,_) = do
   app `initWithFlags` flags
     where initWithFlags a f = foldl modifyAppWithOpt a f
 
--- alter an application regarding an option flag
+-- Alter an application regarding an option flag
 modifyAppWithOpt :: App -> Flag -> App
 modifyAppWithOpt app f = case f of
   FWidth s  -> app { appWidth = read s }
@@ -81,17 +84,17 @@ modifyAppWithOpt app f = case f of
   FZoom s   -> app { appZoom = read s }
   _         -> app
 
--- entry point
+-- Entry point
 main = do
   hSetBuffering stdout NoBuffering
 
-  args <- getArgs -- get the CLI options
-  maybeCliOpts <- parseOpts args -- maybe get the options
+  --args <- getArgs -- get the CLI options
+  maybeCliOpts <- getArgs >>= parseOpts -- maybe get the options
   case maybeCliOpts of
     Nothing -> usage
     Just flags  -> do
-      -- TODO: not so fast, we have to check if thereâ€™s not version flag
-      -- here we have options, so letâ€™s create our very first application ! but before, create the screen
+      -- TODO: not so fast, we have to check if there’s not version flag
+      -- here we have options, so let’s create our very first application ! but before, create the screen
       withInit [InitVideo] $ do
         maybeScreen <- trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
         case maybeScreen of
@@ -105,7 +108,7 @@ main = do
                       SDL.flip $ appScreen app
                       unless quit $ loop newApp
 
--- events handler
+-- Events handler
 treatEvents :: App -> IO (Bool,App)
 treatEvents app = do
   event <- waitEvent
