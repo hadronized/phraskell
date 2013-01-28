@@ -1,3 +1,48 @@
 Ceci est un document de conception.
 
-On va avoir besoin de refactoriser un petit peu.
+On va avoir besoin de refactoriser un petit peu. Déjà, le module Phraskell ne va plus contenir que la gestion
+des options CLI et les appels en fonction. Ensuite, on va avoir besoin de gérer le viewer. Pour ça on va créer
+un module UI, qui contiendra toute l’interface utilisateur. Dedans on y mettra premièrement une data Viewer :
+
+data Viewer = Viewer {
+    viewerZoom      :: Float -- current zoom value
+  , viewerX         :: Float -- current x displacement value
+  , viewerY         :: Float -- current y displacement value
+  , viewerColorSeed :: Int   -- color seed value
+}
+
+On mettra plutôt cette data dans le module Viewer.
+
+Cette data va nous permettre de stocker à tout moment les paramètres de notre fractale. viewerZoom nous donne
+le niveau de zoom actuel, viewer{X,Y} nous donnent la position actuelle de la fractale. Avec ces 3 valeurs, on
+peut ainsi retrouver une image très facilement (il suffit de logger le viewer).
+
+On va ensuite avoir besoin d’une fonction qui va gérer les évènements. Il y a actuellement un certain nombre
+d’évènements :
+  · onViewerUpdate: demande de mise à jour du viewer; arrive lorsque l’on bouge la souris par exemple ;
+  · onScreenshot: demande de screenshot ;
+  · onIterFrameUpdate: demande de mise à jour de la frame d’itération; arrive lorsque l’utilisateur demande
+    une mise à jour de la fractale en utilisant les trois premiers paramètres du viewer ;
+  · onFractalFrameUpdate: demande de mise à jour de la frame de la fractale, par exemple après un appel à
+    onIterFrameUpdate, ou une mise à jour du color seed.
+
+treatEvents :: App -> IO (Bool,App)
+treatEvents app = do
+  event <- waitEvent -- TODO: while waitEvent instead
+  case event of
+    NoEvent -> nochange
+    Quit    -> quit
+    KeyUp k -> case symKey k of
+      SDLK_ESCAPE -> quit
+      SDLK_c      -> alter $ onViewerUpdate ModifColorSeed)
+      SDLK_s      -> alter $ onScreenshot
+      _           -> loopback
+    MouseButtonUp b -> case b of
+      ButtonLeft -> alter $ onIterFrameUpdate
+    _       -> loopback
+ where quit = return (False,app)
+       nochange = return (True,app)
+       alter f = return (True,f app)
+       loopback = treatEvents app
+
+Le code de chaque évènement doit être rempli dans un module qui va bien.
