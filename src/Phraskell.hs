@@ -16,26 +16,6 @@ height = 600
 depth  = 32
 title  = "Phraskell"
 
--- TODO: add fullscreen support
-data App = App {
-    appWidth :: Float           -- width of the window (and subsequently the fractal frame)
-  , appHeight :: Float          -- height of the window (ditto)
-  , appRX :: Float              -- relative x offset of the viewer
-  , appRY :: Float              -- relative y offset of the viewer
-  , appZoom :: Float            -- zoom factor of the viewer
-  , appEquation :: Equation     -- equation to render
-  , appIterFrame :: IterFrame   -- iteration frame
-  , appScreen :: Surface        -- screen surface
-  , appFractalFrame :: Surface  -- fractal surface
-  }
-
-instance Show App where
-  show app = "[" ++ show (appWidth app) ++ ","
-                 ++ show (appHeight app) ++ ","
-                 ++ show (appRX app) ++ ","
-                 ++ show (appRY app) ++ ","
-                 ++ show (appZoom app) ++ "]"
-
 -- CLI flag used to customize the application’s behavior
 data Flag
   = FVersion       -- version of the program
