@@ -46,3 +46,9 @@ treatEvents app = do
        loopback = treatEvents app
 
 Le code de chaque évènement doit être rempli dans un module qui va bien.
+
+Bon maintenant, lorsqu’un utilisateur génère un évènement (pas SDL, un
+évènement phraskell, donc on*), on doit appeler l’implémentation de cet
+évènement. Les évènements sont utilisés dans le module UI, on va donc les
+renseigner dans le module UI.Impl. Le nom du module est un peu naze, mais on
+verra après. 
