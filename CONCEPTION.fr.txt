@@ -82,3 +82,17 @@ l’additionner aux offsets actuels. On a donc :
 
 On peut ensuite simplement appeler la fonction mkIterFrame avec ces nouveaux paramètres,
 et on va avoir tout bien correctement !
+
+Maintenant on va travailler sur onFractalFrameUpdate, qui est appelé lorsque l’on souhaite
+modifier la frame de la fractale. Cette fonction va prendre en paramètre une fonction
+binaire qui pour une IterFrame produit une FractalFrame, c’est à dire une Surface. L’idée
+est donc de passer une fonction qui va modifier la fractale frame. Prenons pour l’exemple
+le cas d’un changement de color seed. L’algorithme de changement de color seed est très
+simple : c’est un map (map f), où f est une simple addition modulo un certain nombre. On
+pourrait donc écrire la fonction de changement de color seed comme cela :
+
+  changeColorSeedFun = map (map $ pixelize . (+seed))
+
+Ici, on va appliquer une fonction qui applique sur chaque ligne une fonction qui va
+prendre donc une itération, lui ajouter la valeur du seed, et passer ça à pixelize,
+Il ne faut pas oublier de modifier l’IterFrame, par ailleurs !
