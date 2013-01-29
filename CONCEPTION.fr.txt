@@ -4,14 +4,14 @@ Les fractales sont représentées de deux manières : la fractale comme une suit
 savoir z_(n+1) = z_n^2 + c, et la fractale représentée. La fractale au sens suite est définie dans le module Fractal,
 qui propose d’ailleurs quelques fractales de base, comme Mandelbrot. Ensuite, tout ce qui vient autour, qui permet
 de représenter la fractale, c’est ce que l’on appellera le module FractalModel. Ce module contient toutes les
-structures qui permettent de représenter sous les équations fractales. On y trouve des fonctions qui génèrent à
-partir d’une équation un modèle de fractale. Un modèle de fractale est une représentation en espace fini de sa
-suite respective, à savoir une liste / un tableau, placé dans un référentiel donné. Ce référentiel est généré
+structures qui permettent de représenter toutes les équations fractales. On y trouve des fonctions qui génèrent à
+partir d’une suite un modèle de fractale. Un modèle de fractale est une représentation en espace fini de sa
+suite respective, à savoir une liste / un tableau, placé(e) dans un référentiel donné. Ce référentiel est généré
 avec une fonction dédiée nommée fractalRef :
 
 fractalRef :: Float -> Float -> (FComplex -> FComplex) -> FractalRef
 
-Cette fonction attend width, height et la fonction a appeler pour générer le référentiel. fractalRef prend déjà
+Cette fonction attend width, height et la fonction à appeler pour générer le référentiel. fractalRef prend déjà
 en compte la mise en référentiel cartésien. La fonction passée en paramètre peut donc modifier ce référentiel
 si elle veut. Sinon, on peut passer id pour avoir un référentiel normalisé.
 On peut composer des appels à oZoom et offsets. oZoom prend un Float, qui représente un niveau de zoom, et applique
