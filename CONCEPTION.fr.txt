@@ -52,3 +52,33 @@ Bon maintenant, lorsqu’un utilisateur génère un évènement (pas SDL, un
 évènement. Les évènements sont utilisés dans le module UI, on va donc les
 renseigner dans le module UI.Impl. Le nom du module est un peu naze, mais on
 verra après. 
+
+On va commencer par travailler sur onIterFrameUpdate, qui est appelé lorsque
+l’on veut mettre à jour la fractale. Cette fonction va avoir besoin d’un certain
+nombre de données pour pouvoir mettre à jour la fractale correctement :
+  · l’application
+    · le viewer
+    · la surface de la fractale
+  · la position de la souris
+  · le facteur de zoom
+Dans le viewer, nous trouverons les valeurs actuelles de la fractale (offsets
+x et y ainsi que le zoom). La surface de la fractale va être utile car nous allons
+la mettre à jour. La position de la souris va nous permettre de calculer les
+nouveaux offsets. Idem pour le facteur de zoom. La première chose que cette fonction
+doit faire, c’est de mettre à jour le viewer. C’est à la fois triviale et complexe :
+la mise à jour du zoom est basique : currentZoom * zf. Si le zoom actuel est 0.5 et
+que l’on passe 2, on avoir un nouveau zoom à 1, ce qui est correct. La mise à jour
+des offsets est par contre moins trivial. L’idée, c’est de calculer de combien on
+doit se déplacer localement. On doit prendre la position de la souris et la passer
+en coordonnées cartésienne. Puis, on calcule le Δ(souris,offsets). Les offsets 
+représentent en fait l’origine du repère. Donc ce Δ va nous donner une distance 
+que l’on doit parcourir pour avoir la nouvelle position. Mais attention ! La
+position de la souris est locale à l’image, qui peut éventuellement être zoomée !
+Il faut donc la multiplier par le niveau de zoom pour avoir un Δ correct, et pouvoir
+l’additionner aux offsets actuels. On a donc :
+
+  newZoom = currentZoom * zf
+  newXY = offXY + (x :+ y)*currentZoom
+
+On peut ensuite simplement appeler la fonction mkIterFrame avec ces nouveaux paramètres,
+et on va avoir tout bien correctement !
