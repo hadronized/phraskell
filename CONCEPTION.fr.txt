@@ -1,7 +1,7 @@
 On va factoriser au taquet.
 
 Les fractales sont représentées de deux manières : la fractale comme une suite, comme celle de Mandelbrot, à
-savoir z_(n+1) = z_n^2, et la fractale représentée. La fractale au sens suite est définie dans le module Fractal,
+savoir z_(n+1) = z_n^2 + c, et la fractale représentée. La fractale au sens suite est définie dans le module Fractal,
 qui propose d’ailleurs quelques fractales de base, comme Mandelbrot. Ensuite, tout ce qui vient autour, qui permet
 de représenter la fractale, c’est ce que l’on appellera le module FractalModel. Ce module contient toutes les
 structures qui permettent de représenter sous les équations fractales. On y trouve des fonctions qui génèrent à
