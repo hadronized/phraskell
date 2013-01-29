@@ -1,98 +1,31 @@
-Ceci est un document de conception.
+On va factoriser au taquet.
 
-On va avoir besoin de refactoriser un petit peu. Déjà, le module Phraskell ne va plus contenir que la gestion
-des options CLI et les appels en fonction. Ensuite, on va avoir besoin de gérer le viewer. Pour ça on va créer
-un module UI, qui contiendra toute l’interface utilisateur. Dedans on y mettra premièrement une data Viewer :
+Les fractales sont représentées de deux manières : la fractale comme une suite, comme celle de Mandelbrot, à
+savoir z_(n+1) = z_n^2, et la fractale représentée. La fractale au sens suite est définie dans le module Fractal,
+qui propose d’ailleurs quelques fractales de base, comme Mandelbrot. Ensuite, tout ce qui vient autour, qui permet
+de représenter la fractale, c’est ce que l’on appellera le module FractalModel. Ce module contient toutes les
+structures qui permettent de représenter sous les équations fractales. On y trouve des fonctions qui génèrent à
+partir d’une équation un modèle de fractale. Un modèle de fractale est une représentation en espace fini de sa
+suite respective, à savoir une liste / un tableau, placé dans un référentiel donné. Ce référentiel est généré
+avec une fonction dédiée nommée fractalRef :
 
-data Viewer = Viewer {
-    viewerZoom      :: Float -- current zoom value
-  , viewerX         :: Float -- current x displacement value
-  , viewerY         :: Float -- current y displacement value
-  , viewerColorSeed :: Int   -- color seed value
-}
+fractalRef :: Float -> Float -> (FComplex -> FComplex) -> FractalRef
 
-On mettra plutôt cette data dans le module Viewer.
+Cette fonction attend width, height et la fonction a appeler pour générer le référentiel. fractalRef prend déjà
+en compte la mise en référentiel cartésien. La fonction passée en paramètre peut donc modifier ce référentiel
+si elle veut. Sinon, on peut passer id pour avoir un référentiel normalisé.
+On peut composer des appels à oZoom et offsets. oZoom prend un Float, qui représente un niveau de zoom, et applique
+ce niveau de zoom sur un complexe, permettant de zoomer ce complexe. offsets permet de translater de la même
+manière un complexe. Au final, on obtient un FractalRef, qui est un référentiel sur lequel on va pouvoir
+travailler pour générer le modèle de la fractale.
 
-Cette data va nous permettre de stocker à tout moment les paramètres de notre fractale. viewerZoom nous donne
-le niveau de zoom actuel, viewer{X,Y} nous donnent la position actuelle de la fractale. Avec ces 3 valeurs, on
-peut ainsi retrouver une image très facilement (il suffit de logger le viewer).
+À partir d’un référentiel, on va vouloir obtenir une représentation de notre fractale sur ce référentiel. On va
+donc avoir une première représentation nommée IterFrame, qui est une frame de valeurs d’itérations. Il nous faut
+une fonction qui prend un référentiel, une équation, et génère la représentation voulue – à savoir un FractalModel.
 
-On va ensuite avoir besoin d’une fonction qui va gérer les évènements. Il y a actuellement un certain nombre
-d’évènements :
-  · onViewerUpdate: demande de mise à jour du viewer; arrive lorsque l’on bouge la souris par exemple ;
-  · onScreenshot: demande de screenshot ;
-  · onIterFrameUpdate: demande de mise à jour de la frame d’itération; arrive lorsque l’utilisateur demande
-    une mise à jour de la fractale en utilisant les trois premiers paramètres du viewer ;
-  · onFractalFrameUpdate: demande de mise à jour de la frame de la fractale, par exemple après un appel à
-    onIterFrameUpdate, ou une mise à jour du color seed.
+Générer un FractalModel, et plus particulièrement une IterFrame, demande deux choses : un référentiel, et une suite.
+C’est tout. Sauf qu’en vrai, le référentiel va être généré à ce moment là. On va donc prendre en paramètre une
+autre data : Viewer. Viewer nous permet de stocker toutes les informations actuelles relatives à un modèle de
+fractale.
 
-treatEvents :: App -> IO (Bool,App)
-treatEvents app = do
-  event <- waitEvent -- TODO: while waitEvent instead
-  case event of
-    NoEvent -> nochange
-    Quit    -> quit
-    KeyUp k -> case symKey k of
-      SDLK_ESCAPE -> quit
-      SDLK_c      -> alter $ onViewerUpdate ModifColorSeed)
-      SDLK_s      -> alter $ onScreenshot
-      _           -> loopback
-    MouseButtonUp b -> case b of
-      ButtonLeft -> alter $ onIterFrameUpdate
-    _       -> loopback
- where quit = return (False,app)
-       nochange = return (True,app)
-       alter f = return (True,f app)
-       loopback = treatEvents app
-
-Le code de chaque évènement doit être rempli dans un module qui va bien.
-
-Bon maintenant, lorsqu’un utilisateur génère un évènement (pas SDL, un
-évènement phraskell, donc on*), on doit appeler l’implémentation de cet
-évènement. Les évènements sont utilisés dans le module UI, on va donc les
-renseigner dans le module UI.Impl. Le nom du module est un peu naze, mais on
-verra après. 
-
-On va commencer par travailler sur onIterFrameUpdate, qui est appelé lorsque
-l’on veut mettre à jour la fractale. Cette fonction va avoir besoin d’un certain
-nombre de données pour pouvoir mettre à jour la fractale correctement :
-  · l’application
-    · le viewer
-    · la surface de la fractale
-  · la position de la souris
-  · le facteur de zoom
-Dans le viewer, nous trouverons les valeurs actuelles de la fractale (offsets
-x et y ainsi que le zoom). La surface de la fractale va être utile car nous allons
-la mettre à jour. La position de la souris va nous permettre de calculer les
-nouveaux offsets. Idem pour le facteur de zoom. La première chose que cette fonction
-doit faire, c’est de mettre à jour le viewer. C’est à la fois triviale et complexe :
-la mise à jour du zoom est basique : currentZoom * zf. Si le zoom actuel est 0.5 et
-que l’on passe 2, on avoir un nouveau zoom à 1, ce qui est correct. La mise à jour
-des offsets est par contre moins trivial. L’idée, c’est de calculer de combien on
-doit se déplacer localement. On doit prendre la position de la souris et la passer
-en coordonnées cartésienne. Puis, on calcule le Δ(souris,offsets). Les offsets 
-représentent en fait l’origine du repère. Donc ce Δ va nous donner une distance 
-que l’on doit parcourir pour avoir la nouvelle position. Mais attention ! La
-position de la souris est locale à l’image, qui peut éventuellement être zoomée !
-Il faut donc la multiplier par le niveau de zoom pour avoir un Δ correct, et pouvoir
-l’additionner aux offsets actuels. On a donc :
-
-  newZoom = currentZoom * zf
-  newXY = offXY + (x :+ y)*currentZoom
-
-On peut ensuite simplement appeler la fonction mkIterFrame avec ces nouveaux paramètres,
-et on va avoir tout bien correctement !
-
-Maintenant on va travailler sur onFractalFrameUpdate, qui est appelé lorsque l’on souhaite
-modifier la frame de la fractale. Cette fonction va prendre en paramètre une fonction
-binaire qui pour une IterFrame produit une FractalFrame, c’est à dire une Surface. L’idée
-est donc de passer une fonction qui va modifier la fractale frame. Prenons pour l’exemple
-le cas d’un changement de color seed. L’algorithme de changement de color seed est très
-simple : c’est un map (map f), où f est une simple addition modulo un certain nombre. On
-pourrait donc écrire la fonction de changement de color seed comme cela :
-
-  changeColorSeedFun = map (map $ pixelize . (+seed))
-
-Ici, on va appliquer une fonction qui applique sur chaque ligne une fonction qui va
-prendre donc une itération, lui ajouter la valeur du seed, et passer ça à pixelize,
-Il ne faut pas oublier de modifier l’IterFrame, par ailleurs !
+Une fois que l’on a la représentation de la fractale, on peut simplement la passer à la vue.
