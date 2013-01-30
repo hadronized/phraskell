@@ -3,7 +3,7 @@ module Render where
 import Data.Bits
 import Control.Monad
 import Foreign
-import Fractal
+import FractalModel
 import Graphics.UI.SDL as SDL
 
 tryGetScreen :: Int -> Int -> Int -> String -> IO (Maybe Surface)
@@ -34,8 +34,8 @@ pixelize i  = Pixel $ (shift r 16) + (shift g 8) + b
         toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
 
 -- pixelize an entire SDL Surface
-pixelizeSurface :: IterFrame -> Surface -> IO ()
-pixelizeSurface iterf surface = do
+pixelizeSurface :: FractalModel -> Surface -> IO ()
+pixelizeSurface (IterFrame iterf) surface = do
   foldM_ (\row line -> foldM_ (\col x -> f (row,col) x >> return (col+1)) 0 line >> return (row+1)) 0 iterf
     where width = surfaceGetWidth surface
           height = surfaceGetHeight surface
