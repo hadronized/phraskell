@@ -79,8 +79,8 @@ main = do
   case maybeCliOpts of
     Nothing -> usage
     Just flags  -> do
-      -- TODO: not so fast, we have to check if there¿s not version flag
-      -- here we have options, so let¿s create our very first application ! but before, create the screen
+      -- TODO: not so fast, we have to check if thereâ€™s not version flag
+      -- here we have options, so letâ€™s create our very first application ! but before, create the screen
       withInit [InitVideo] $ do
         maybeScreen <- trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
         case maybeScreen of
@@ -95,6 +95,6 @@ main = do
                 loop app
                 putStrLn "Bye!"
                   where loop app = do
-                          (quit,newApp) <- treatEvents app
+                          (goon,newApp) <- treatEvents app
                           SDL.flip $ appScreen app
-                          unless quit $ loop newApp
+                          when goon $ loop newApp

@@ -6,7 +6,7 @@ import Render
 import Viewer
 
 -- Take the position of the mouse, the zoom factor, the application, and regenerate
--- the fractal frame (also update the app¿s viewer).
+-- the fractal frame (also update the appâ€™s viewer).
 onIterFrameUpdate :: Float -> Float -> Float -> App -> IO App
 onIterFrameUpdate x y zf app = do
   let cviewer   = appViewer app
