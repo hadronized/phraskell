@@ -3,6 +3,7 @@ import Control.Monad
 import Control.Monad.State
 import Equations
 import Fractal
+import FractalModel
 import Graphics.UI.SDL as SDL
 import Render
 import System.Environment
@@ -83,13 +84,17 @@ main = do
       withInit [InitVideo] $ do
         maybeScreen <- trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
         case maybeScreen of
-          Nothing -> putStrLn "unable to get a screen! :("
+          Nothing     -> putStrLn "unable to get a screen! :("
           Just screen -> do
             let viewer = Viewer width height 1.0 0.0 0.0 0 mandelbrotEquation
-            let app = initApp (App  [] screen) flags -- the application
-            loop app
-            putStrLn "Bye!"
-              where loop app = do
-                      (quit,newApp) <- treatEvents app
-                      SDL.flip $ appScreen app
-                      unless quit $ loop newApp
+            maybeFractalSurface <- tryCreateRGBSurface [HWSurface] (floor width) (floor height) (floor depth) 0 0 0 0
+            case maybeFractalSurface of
+              Nothing             -> putStrLn "unable to get a fractal surface! :("
+              Just fractalSurface -> do
+                let app = initApp (App viewer (IterFrame []) screen fractalSurface) flags -- the application
+                loop app
+                putStrLn "Bye!"
+                  where loop app = do
+                          (quit,newApp) <- treatEvents app
+                          SDL.flip $ appScreen app
+                          unless quit $ loop newApp
