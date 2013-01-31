@@ -1,3 +1,4 @@
+import Application
 import Control.Monad
 import Control.Monad.State
 import Equations
@@ -7,6 +8,8 @@ import Render
 import System.Environment
 import System.Console.GetOpt
 import System.IO
+import UI
+import Viewer
 
 -- application defaults
 width,height,depth :: Float
@@ -16,7 +19,7 @@ height = 600
 depth  = 32
 title  = "Phraskell"
 
--- CLI flag used to customize the application’s behavior
+-- CLI flag used to customize the applications behavior
 data Flag
   = FVersion       -- version of the program
   | FFullscreen    -- should the app in fullscreen mode?
@@ -56,13 +59,15 @@ initApp app (flags,_) = do
 
 -- Alter an application regarding an option flag
 modifyAppWithOpt :: App -> Flag -> App
-modifyAppWithOpt app f = case f of
-  FWidth s  -> app { appWidth = read s }
-  FHeight s -> app { appHeight = read s }
-  FRX s     -> app { appRX = read s }
-  FRY s     -> app { appRX = read s }
-  FZoom s   -> app { appZoom = read s }
-  _         -> app
+modifyAppWithOpt app f = app { appViewer = newViewer }
+  where viewer = appViewer app
+        newViewer = case f of
+          FWidth s  -> viewer { viewerWidth = read s }
+          FHeight s -> viewer { viewerHeight = read s }
+          FRX s     -> viewer { viewerX = read s }
+          FRY s     -> viewer { viewerX = read s }
+          FZoom s   -> viewer { viewerZoom = read s }
+          _         -> viewer
 
 -- Entry point
 main = do
@@ -73,14 +78,15 @@ main = do
   case maybeCliOpts of
     Nothing -> usage
     Just flags  -> do
-      -- TODO: not so fast, we have to check if there’s not version flag
-      -- here we have options, so let’s create our very first application ! but before, create the screen
+      -- TODO: not so fast, we have to check if there¿s not version flag
+      -- here we have options, so let¿s create our very first application ! but before, create the screen
       withInit [InitVideo] $ do
         maybeScreen <- trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
         case maybeScreen of
           Nothing -> putStrLn "unable to get a screen! :("
           Just screen -> do
-            let app = initApp (App width height 0.0 0.0 1.0 mandelbrotEquation [] screen) flags -- the application
+            let viewer = Viewer width height 1.0 0.0 0.0 0 mandelbrotEquation
+            let app = initApp (App  [] screen) flags -- the application
             loop app
             putStrLn "Bye!"
               where loop app = do

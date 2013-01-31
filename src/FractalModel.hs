@@ -1,6 +1,8 @@
 module FractalModel where
 
+import Data.Complex
 import Fractal
+import Viewer
 
 type FractalRef = [[FComplex]]
 
@@ -8,17 +10,17 @@ screen :: Float -> Float -> (FComplex -> FComplex) -> FractalRef
 screen w h f = map (\x -> [ f $ toCart w h (x :+ y) | y <- [0..h-1] ]) [0..w-1]
 
 toCart :: Float -> Float -> FComplex -> FComplex
-toCart w h r (x :+ y) = (2 * r*x / w - 1 :+ 1 - 2 * y / h)
+toCart w h (x :+ y) = (2 * r*x / w - 1) :+ (1 - 2 * y / h)
   where r = w / h
 
 oZoom :: Float -> FComplex -> FComplex
 oZoom z (x :+ y) = (x/z :+ y/z)
 
 offsets :: Float -> Float -> FComplex -> FComplex
-offsets rx ry (x :+ y) = (x+rx :+ y+ry)
+offsets rx ry (x :+ y) = (x+rx) :+ (y+ry)
 
 data FractalModel
-  = Iterframe [[Integer]]
+  = IterFrame [[Integer]]
 
   -- for x and y, evaluate the fractal equation
 evalFrac :: FractalProgression -> FComplex -> FComplex -> Integer -> Integer
@@ -37,7 +39,7 @@ mkIterFrame v =
       rx    = viewerX v
       ry    = viewerY v
       z     = viewerZoom v
-      e     = viewerEquation v
-      ref   = screen w h $ eval . offsets rx ry . oZoom z
-      eval  = \(x :+ y) -> evalFrac e (fromInteger 0) (x :+ y) 500
-  in IterFrame $ ref
+      p     = viewerProgression v
+      ref   = screen w h $ offsets rx ry . oZoom z
+      eval  = map $ map (\(x :+ y) -> evalFrac p (fromInteger 0) (x :+ y) 500)
+  in IterFrame $ eval ref

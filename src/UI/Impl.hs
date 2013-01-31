@@ -1,21 +1,24 @@
 module UI.Impl where
 
+import Application
+import FractalModel
+import Render
 import Viewer
 
 -- Take the position of the mouse, the zoom factor, the application, and regenerate
--- the fractal frame (also update the app’s viewer).
+-- the fractal frame (also update the app¿s viewer).
 onIterFrameUpdate :: Float -> Float -> Float -> App -> IO App
-onIterFrameUpdate :: x y zf app = do
+onIterFrameUpdate x y zf app = do
   let cviewer   = appViewer app
       cz        = viewerZoom cviewer
-      (nx,ny)   = (viewerX cviewer + x*cz,viewerY cviewer + y*cf)
+      (nx,ny)   = (viewerX cviewer + x*cz,viewerY cviewer + y*cz)
       newViewer = cviewer { viewerX = nx, viewerY = ny, viewerZoom = cz*zf }
   onFractalFrameUpdate $ app { appViewer = newViewer }
             
 onFractalFrameUpdate :: App -> IO App
 onFractalFrameUpdate app = do
   let viewer = appViewer app
-       iterf = mkIterFrame viewer
+      iterf  = mkIterFrame viewer
   putStr $ "updating fractal " ++ show app ++ "... "
   pixelizeSurface iterf (appScreen app)
   putStrLn "done!"

@@ -1,15 +1,15 @@
 module Viewer where
 
-import Fractal (Equation)
+import Fractal (FractalProgression)
 
 data Viewer = Viewer {
-    viewerWidth     :: Float -- current width value
-  , viewerHeight    :: Float -- current height value
-  , viewerZoom      :: Float -- current zoom value
-  , viewerX         :: Float -- current x displacement value
-  , viewerY         :: Float -- current y displacement value
-  , viewerColorSeed :: Int   -- current color seed value
-  , viewerEquation  :: Equation -- current fractal equation
+    viewerWidth        :: Float -- current width value
+  , viewerHeight       :: Float -- current height value
+  , viewerZoom         :: Float -- current zoom value
+  , viewerX            :: Float -- current x displacement value
+  , viewerY            :: Float -- current y displacement value
+  , viewerColorSeed    :: Int   -- current color seed value
+  , viewerProgression  :: FractalProgression -- current fractal equation
 }
 
 instance Show Viewer where

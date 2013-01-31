@@ -1,7 +1,7 @@
 module Equations where
 
-import Fractal (Equation)
+import Fractal (FractalProgression)
 
 -- mandelbrot sequence
-mandelbrotEquation :: Equation
+mandelbrotEquation :: FractalProgression
 mandelbrotEquation z c = z^2 + c
