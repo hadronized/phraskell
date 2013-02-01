@@ -1,7 +1,8 @@
 import Application
 import Control.Monad
 import Control.Monad.State
-import Equations
+import Control.Monad.Trans.Maybe
+import Default
 import Fractal
 import FractalModel
 import Graphics.UI.SDL as SDL
@@ -10,6 +11,7 @@ import System.Environment
 import System.Console.GetOpt
 import System.IO
 import UI
+import UI.Impl
 import Viewer
 
 -- application defaults
@@ -21,80 +23,72 @@ depth  = 32
 title  = "Phraskell"
 
 -- CLI flag used to customize the applications behavior
-data Flag
-  = FVersion       -- version of the program
-  | FFullscreen    -- should the app in fullscreen mode?
-  | FWidth String  -- width of the screen
-  | FHeight String -- heigth of the sceen
-  | FRX String     -- relative x value
-  | FRY String     -- relative y value
-  | FZoom String   -- zoom value
+data CLIFlag
+  = CLIVersion       -- version of the program
+  | CLIFullscreen    -- should the app in fullscreen mode?
+  | CLIWidth String  -- width of the screen
+  | CLIHeight String -- heigth of the sceen
+  | CLIX String      -- x value
+  | CLIY String      -- y value
+  | CLIZoom String   -- zoom value
 
 -- Display some usage informantion on standard output
 usage :: IO ()
 usage = putStrLn $ usageInfo "usage: phraskell [OPTIONS]" options
 
 -- All possible CLI options
-options :: [OptDescr Flag]
+options :: [OptDescr CLIFlag]
 options =
-  [ Option ['v','?'] ["version", "about"] (NoArg FVersion)           "show version"
-  , Option ['w']     ["width"]            (ReqArg FWidth "WIDTH")    "width of window"
-  , Option ['h']     ["heigth"]           (ReqArg FHeight "HEIGHT")  "height of the window"
-  , Option ['x']     ["rx","relx"]        (ReqArg FRX "RELX")        "x displacement"
-  , Option ['y']     ["ry","rely"]        (ReqArg FRY "RELY")        "y displacement"
-  , Option ['z']     ["zoom"]             (ReqArg FZoom "ZOOM")      "zoom factor"
+  [ Option ['v','?'] ["version", "about"] (NoArg CLIVersion)           "show version"
+  , Option ['w']     ["width"]            (ReqArg CLIWidth "WIDTH")    "width of window"
+  , Option ['h']     ["heigth"]           (ReqArg CLIHeight "HEIGHT")  "height of the window"
+  , Option ['x']     ["rx","relx"]        (ReqArg CLIX "X")            "x displacement"
+  , Option ['y']     ["ry","rely"]        (ReqArg CLIY "Y")            "y displacement"
+  , Option ['z']     ["zoom"]             (ReqArg CLIZoom "ZOOM")      "zoom factor"
   ]
 
 -- Parse options and maybe return a tuple of filled flags and non-options
-parseOpts :: [String] -> IO (Maybe ([Flag],[String]))
+parseOpts :: [String] -> MaybeT IO [CLIFlag]
 parseOpts args =
   case getOpt Permute options args of
-    (o,n,[])   -> return $ Just (o,n)
-    (_,_,errs) -> return Nothing
+    (o,n,[])   -> return o
+    _          -> mzero
 
--- Initialize the given application with CLI options
-initApp :: App -> ([Flag],[String]) -> App
-initApp app (flags,_) = do
-  app `initWithFlags` flags
+-- Create an application using the given screen, fractal surface and cli flags
+mkApp :: Surface -> Surface -> [CLIFlag] -> App
+mkApp scr fractalSurface flags = do
+  (App def (IterFrame []) scr fractalSurface) `initWithFlags` flags
     where initWithFlags a f = foldl modifyAppWithOpt a f
 
 -- Alter an application regarding an option flag
-modifyAppWithOpt :: App -> Flag -> App
+modifyAppWithOpt :: App -> CLIFlag -> App
 modifyAppWithOpt app f = app { appViewer = newViewer }
   where viewer = appViewer app
         newViewer = case f of
-          FWidth s  -> viewer { viewerWidth = read s }
-          FHeight s -> viewer { viewerHeight = read s }
-          FRX s     -> viewer { viewerX = read s }
-          FRY s     -> viewer { viewerX = read s }
-          FZoom s   -> viewer { viewerZoom = read s }
-          _         -> viewer
+          CLIWidth s  -> viewer { viewerWidth = read s }
+          CLIHeight s -> viewer { viewerHeight = read s }
+          CLIX s      -> viewer { viewerX = read s }
+          CLIY s      -> viewer { viewerX = read s }
+          CLIZoom s   -> viewer { viewerZoom = read s }
+          _           -> viewer
 
 -- Entry point
 main = do
   hSetBuffering stdout NoBuffering
 
-  --args <- getArgs -- get the CLI options
-  maybeCliOpts <- getArgs >>= parseOpts -- maybe get the options
-  case maybeCliOpts of
-    Nothing -> usage
-    Just flags  -> do
-      -- TODO: not so fast, we have to check if there’s not version flag
-      -- here we have options, so let’s create our very first application ! but before, create the screen
-      withInit [InitVideo] $ do
-        maybeScreen <- trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
-        case maybeScreen of
-          Nothing     -> putStrLn "unable to get a screen! :("
-          Just screen -> do
-            let viewer = Viewer width height 1.0 0.0 0.0 0 mandelbrotEquation
-            maybeFractalSurface <- tryCreateRGBSurface [HWSurface] (floor width) (floor height) (floor depth) 0 0 0 0
-            case maybeFractalSurface of
-              Nothing             -> putStrLn "unable to get a fractal surface! :("
-              Just fractalSurface -> do
-                let app = initApp (App viewer (IterFrame []) screen fractalSurface) flags -- the application
-                loop app
-                putStrLn "Bye!"
-                  where loop app = do
-                          (goon,newApp) <- treatEvents app
-                          SDL.flip $ appScreen app
-                          when goon $ loop newApp
+  args <- getArgs
+  params <- runMaybeT $ do -- :: MaybeT IO ([CLIFlag],Surface,Surface)
+             cliOpts <- (parseOpts args) -- MaybeT IO [CLIFlag]
+             -- IO (Maybe Surface)
+             maybeScreen <- MaybeT $ trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
+             scr <- MaybeT $ trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
+             fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor width) (floor height) (floor depth) 0 0 0 0
+             return (cliOpts,scr,fractalSurface)
+  case params of
+    Just (cliOpts,scr,fractalSurface) -> loop $ mkApp scr fractalSurface cliOpts
+    _                                 -> putStrLn "something just went wrong! :("
+  print "Bye!"
+    where loop app = do
+            (goon,newApp) <- treatEvents app
+            SDL.flip $ appScreen app
+            when goon $ loop newApp

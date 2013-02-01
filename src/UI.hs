@@ -14,7 +14,7 @@ treatEvents app = do
       SDLK_ESCAPE -> quit
       _           -> loopback
     MouseButtonUp x y b -> case b of
-      ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y) 0.5 
+      ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y) 0.5
     _       -> loopback
  where quit     = return (False,app)
        nochange = return (True,app)

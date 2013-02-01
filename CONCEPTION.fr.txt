@@ -82,3 +82,27 @@ l’additionner aux offsets actuels. On a donc :
 
 On peut ensuite simplement appeler la fonction mkIterFrame avec ces nouveaux paramètres,
 et on va avoir tout bien correctement !
+
+-----
+
+On doit refactoriser encore et encore. Déjà, le point d’entrée est vraiment dégueulasse.
+Il faut factoriser cela car c’est vraiment moche. On peut éventuellement utiliser des
+monade transformers, on va voir cela.
+
+La partie CLI est bien écrite. Elle est concise. On va cependant la rendre plus explicite.
+Flag va devenir CLIFlag, pour bien montrer que c’est un flag CLI. La fonction usage reste
+inchangée. La fonction options est bonne mais il faut prendre en compte CLIFlag. parseOpts
+parse les options passées en paramètre et retourne peut-être des CLIFlag. Ici,
+le comportement n’est pas celui voulu, bien que cela marche. On voudrait en fait que si
+notre opération IO échoue, c’est à dire que la ligne de commande CLI est mal formée, alors
+on retourne une erreur. On va donc utiliser Either, et même EitherT ! Et là on aura un truc
+propre de chez propre. Ensuite, initApp, qui permet d’initialiser un application, n’est pas
+terrible, car elle prend une app et lui applique les flags, sauf que l’application que l’on
+passe doit être créée, et c’est chiant à créer. On va donc passer uniquement des flags, et
+cette fonction va devenir createApp. modifyAppWithOpt va changer de nom pour devenir 
+alterAppOpt, et son implémentation reste la même.
+Finalement, il nous faudra une fonction version.
+
+Normalement après tout ça, on devrait avoir une main plus simple.
+
+Bon la fonction qui crée l’application doit-être pure. Le problème avec

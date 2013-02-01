@@ -1,6 +1,7 @@
 module Viewer where
 
-import Fractal (FractalProgression)
+import Default
+import Fractal (FractalProgression, mandelbrot)
 
 data Viewer = Viewer {
     viewerWidth        :: Float -- current width value
@@ -19,3 +20,6 @@ instance Show Viewer where
               ++ show (viewerX viewer) ++ ","
               ++ show (viewerY viewer) ++ ","
               ++ show (viewerZoom viewer) ++ "]"
+
+instance Default Viewer where
+  def = Viewer 800 600 1 0 0 0 mandelbrot
