@@ -77,9 +77,8 @@ main = do
   hSetBuffering stdout NoBuffering
 
   args <- getArgs
-  params <- runMaybeT $ do -- :: MaybeT IO ([CLIFlag],Surface,Surface)
-             cliOpts <- (parseOpts args) -- MaybeT IO [CLIFlag]
-             -- IO (Maybe Surface)
+  params <- runMaybeT $ do
+             cliOpts <- (parseOpts args) 
              maybeScreen <- MaybeT $ trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
              scr <- MaybeT $ trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
              fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor width) (floor height) (floor depth) 0 0 0 0
