@@ -84,10 +84,12 @@ main = do
              fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor width) (floor height) (floor depth) 0 0 0 0
              return (cliOpts,scr,fractalSurface)
   case params of
-    Just (cliOpts,scr,fractalSurface) -> loop $ mkApp scr fractalSurface cliOpts
+    Just (cliOpts,scr,fractalSurface) -> launch $ mkApp scr fractalSurface cliOpts
     _                                 -> putStrLn "something just went wrong! :("
   print "Bye!"
-    where loop app = do
-            (goon,newApp) <- treatEvents app
+    where launch app = do
+            onFractalFrameUpdate app >>= loop
+          loop app = do
             SDL.flip $ appScreen app
+            (goon,newApp) <- treatEvents app
             when goon $ loop newApp
