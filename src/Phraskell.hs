@@ -88,8 +88,10 @@ main = do
     _                                 -> putStrLn "something just went wrong! :("
   print "Bye!"
     where launch app = do
-            onFractalFrameUpdate app >>= loop
-          loop app = do
+            onFractalFrameUpdate app
             SDL.flip $ appScreen app
+            loop app
+          loop app = do
             (goon,newApp) <- treatEvents app
+            SDL.flip $ appScreen app
             when goon $ loop newApp

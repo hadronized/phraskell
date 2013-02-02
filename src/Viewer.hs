@@ -22,4 +22,4 @@ instance Show Viewer where
               ++ show (viewerZoom viewer) ++ "]"
 
 instance Default Viewer where
-  def = Viewer 800 600 1 0 0 0 mandelbrot
+  def = Viewer 800 600 1 (-1.0) 0 0 mandelbrot
