@@ -17,17 +17,16 @@ onIterFrameUpdate x y zf app = do
       (nx,ny)     = (viewerX cviewer + rx*cz,viewerY cviewer + ry*cz)
       newViewer   = cviewer { viewerX = nx, viewerY = ny, viewerZoom = cz*zf }
   onFractalFrameUpdate $ app { appViewer = newViewer }
-            
+ 
 onFractalFrameUpdate :: App -> IO App
 onFractalFrameUpdate app = do
   let viewer = appViewer app
       iterf  = mkIterFrame viewer
   putStr $ "updating fractal " ++ show app ++ "... "
-  pixelizeSurface iterf (appScreen app)
+  pixelizeSurface iterf (appFractalFrame app)
   putStrLn "done!"
   return app { appViewer = viewer, appIterFrame = iterf }
-  
-  
+ 
 onMouseMotion :: Int -> Int -> Float -> App -> IO App
 onMouseMotion mx my zf app = do
   -- first, create the Rect that defines the cursor position according to the mouse position
