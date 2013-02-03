@@ -30,14 +30,13 @@ putPixel p s (u,v) = do
 pixelize :: Integer -> SDL.Pixel
 pixelize (-1) = Pixel (0 :: Word32)
 pixelize i  = Pixel $ (shift r 16) + (shift g 8) + b
-  where (r,g,b) = toWord32 $ (0,imod256,0)
+{-
+  where (r,g,b) = toWord32 $ (0,0,imod256)
         imod256 = i `mod` 256
         toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
-{-
+-}
   where (r,g,b) = toWord32 $ decodeColor i
         toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
-
--}
 
 -- pixelize an entire SDL Surface
 pixelizeSurface :: FractalModel -> Surface -> IO ()
