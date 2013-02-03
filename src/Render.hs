@@ -35,7 +35,7 @@ pixelize i  = Pixel $ (shift r 16) + (shift g 8) + b
         imod256 = i `mod` 256
         toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
 -}
-  where (r,g,b) = toWord32 $ decodeColor i
+  where (r,g,b) = toWord32 $ decodeColor (6*i) 
         toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
 
 -- pixelize an entire SDL Surface
