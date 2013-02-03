@@ -10,11 +10,11 @@ screen :: Float -> Float -> (FComplex -> FComplex) -> FractalRef
 screen w h f = map (\x -> [ f $ toCart w h (x :+ y) | y <- [0..h-1] ]) [0..w-1]
 
 toCart :: Float -> Float -> FComplex -> FComplex
-toCart w h (x :+ y) = (2 * r*x / w - 1) :+ (1 - 2 * y / h)
+toCart w h (x :+ y) = r*(2 * x / w - 1) :+ (1 - 2 * y / h)
   where r = w / h
 
 oZoom :: Float -> FComplex -> FComplex
-oZoom z (x :+ y) = (x/z :+ y/z)
+oZoom z (x :+ y) = (x/z) :+ (y/z)
 
 offsets :: Float -> Float -> FComplex -> FComplex
 offsets rx ry (x :+ y) = (x+rx) :+ (y+ry)
