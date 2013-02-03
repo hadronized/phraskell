@@ -14,7 +14,7 @@ onIterFrameUpdate x y zf app = do
   let cviewer     = appViewer app
       cz          = viewerZoom cviewer
       (rx :+ ry)  = toCart (viewerWidth cviewer) (viewerHeight cviewer) (x :+ y)
-      (nx,ny)     = (viewerX cviewer + rx*cz,viewerY cviewer + ry*cz)
+      (nx,ny)     = (viewerX cviewer + rx/cz,viewerY cviewer + ry/cz)
       newViewer   = cviewer { viewerX = nx, viewerY = ny, viewerZoom = cz*zf }
   onFractalFrameUpdate $ app { appViewer = newViewer }
  

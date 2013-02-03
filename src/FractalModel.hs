@@ -41,5 +41,5 @@ mkIterFrame v =
       z     = viewerZoom v
       p     = viewerProgression v
       ref   = screen w h $ offsets rx ry . oZoom z
-      eval  = map $ map (\(x :+ y) -> evalFrac p (fromInteger 0) (x :+ y) 500)
+      eval  = map $ map (\(x :+ y) -> evalFrac p (fromInteger 0) (x :+ y) 1000)
   in IterFrame $ eval ref
