@@ -1,1 +1,0 @@
-Bon, on a un souci avec la valeur en x du zoom.
