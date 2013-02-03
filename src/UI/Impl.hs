@@ -11,11 +11,13 @@ import Viewer
 -- the fractal frame (also update the app’s viewer).
 onIterFrameUpdate :: Float -> Float -> Float -> App -> IO App
 onIterFrameUpdate x y zf app = do
+  print $ "Mouse is at(" ++ show x ++ ";" ++ show y ++ ")"
   let cviewer     = appViewer app
       cz          = viewerZoom cviewer
       (rx :+ ry)  = toCart (viewerWidth cviewer) (viewerHeight cviewer) (x :+ y)
       (nx,ny)     = (viewerX cviewer + rx/cz,viewerY cviewer + ry/cz)
       newViewer   = cviewer { viewerX = nx, viewerY = ny, viewerZoom = cz*zf }
+  print $ "Mouse is at cart(" ++ show rx ++ ";" ++ show ry ++ ")"
   onFractalFrameUpdate $ app { appViewer = newViewer }
  
 onFractalFrameUpdate :: App -> IO App
