@@ -9,7 +9,7 @@ import Viewer
 
 -- Take the position of the mouse, the zoom factor, the application, and regenerate
 -- the fractal frame (also update the app’s viewer).
-onIterFrameUpdate :: Float -> Float -> Float -> App -> IO App
+onIterFrameUpdate :: Double -> Double -> Double -> App -> IO App
 onIterFrameUpdate x y zf app = do
   let cviewer     = appViewer app
       cz          = viewerZoom cviewer
@@ -27,7 +27,7 @@ onFractalFrameUpdate app = do
   putStrLn "done!"
   return app { appViewer = viewer, appIterFrame = iterf }
  
-onMouseMotion :: Int -> Int -> Float -> App -> IO App
+onMouseMotion :: Int -> Int -> Double -> App -> IO App
 onMouseMotion mx my zf app = do
   -- first, create the Rect that defines the cursor position according to the mouse position
   let viewer = appViewer app

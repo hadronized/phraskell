@@ -2,7 +2,7 @@ module Fractal where
 
 import Data.Complex
 
-type FComplex = Complex Float
+type FComplex = Complex Double
 type FractalProgression = (FComplex -> FComplex -> FComplex)
 
 -- mandelbrot progression

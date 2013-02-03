@@ -15,7 +15,7 @@ import UI.Impl
 import Viewer
 
 -- application defaults
-width,height,depth :: Float
+width,height,depth :: Double
 title :: String
 width  = 800
 height = 600

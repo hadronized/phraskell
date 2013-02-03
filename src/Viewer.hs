@@ -4,11 +4,11 @@ import Default
 import Fractal (FractalProgression, mandelbrot)
 
 data Viewer = Viewer {
-    viewerWidth        :: Float -- current width value
-  , viewerHeight       :: Float -- current height value
-  , viewerZoom         :: Float -- current zoom value
-  , viewerX            :: Float -- current x displacement value
-  , viewerY            :: Float -- current y displacement value
+    viewerWidth        :: Double -- current width value
+  , viewerHeight       :: Double -- current height value
+  , viewerZoom         :: Double -- current zoom value
+  , viewerX            :: Double -- current x displacement value
+  , viewerY            :: Double -- current y displacement value
   , viewerColorSeed    :: Int   -- current color seed value
   , viewerProgression  :: FractalProgression -- current fractal equation
 }
