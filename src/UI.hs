@@ -12,6 +12,7 @@ treatEvents app = do
     Quit    -> quit
     KeyUp k -> case symKey k of
       SDLK_ESCAPE -> quit
+      SDLK_SPACE  -> queryCursorState >>= showCursor . not >> nochange
       _           -> loopback
     MouseButtonUp x y b -> case b of
       ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y) 2
