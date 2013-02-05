@@ -83,11 +83,13 @@ main = do
              return (viewer,scr,fractalSurface)
   case params of
     Just (viewer,scr,fractalSurface) -> launch $ App viewer (IterFrame []) scr fractalSurface
-    _                                 -> putStrLn "something just went wrong! :("
+    _                                -> putStrLn "something just went wrong! :("
   print "Bye!"
     where launch app = do
+            enableKeyRepeat 200 10
             onFractalFrameUpdate app >>= loop
-          loop app = do
             SDL.flip $ appScreen app
+          loop app = do
             (goon,newApp) <- treatEvents app
+            SDL.flip $ appScreen app
             when goon $ loop newApp

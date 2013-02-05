@@ -21,14 +21,15 @@ treatEvents app = do
       SDLK_PLUS      -> alter $ (\a -> let v    = appViewer a
                                            maxi = viewerMaxIter v
                                        in return a { appViewer = v { viewerMaxIter = maxi+50 } })
-      SDLK_LEFTPAREN -> alter $ (\a -> let v  = appViewer a
-                                           zf = viewerZoomf v
-                                       in return a { appViewer = v { viewerZoomf = zf-0.1 } })
+      _           -> loopback
+    KeyDown k -> case symKey k of
+      SDLK_LEFTPAREN  -> alter $ (\a -> let v  = appViewer a
+                                            zf = viewerZoomf v
+                                        in return a { appViewer = v { viewerZoomf = zf-0.1 } })
       SDLK_RIGHTPAREN -> alter $ (\a -> let v  = appViewer a
                                             zf = viewerZoomf v
                                        in return a { appViewer = v { viewerZoomf = zf+0.1 } })
-
-      _           -> loopback
+      _               -> loopback
     MouseButtonUp x y b -> case b of
       ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y)
       _ -> loopback
