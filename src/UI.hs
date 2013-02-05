@@ -21,7 +21,6 @@ treatEvents app = do
       SDLK_PLUS   -> alter $ (\a -> let v    = appViewer a
                                         maxi = viewerMaxIter v
                                     in return a { appViewer = v { viewerMaxIter = maxi+50 } })
-
       _           -> loopback
     MouseButtonUp x y b -> case b of
       ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y) 2

@@ -15,11 +15,10 @@ import UI.Impl
 import Viewer
 
 -- application defaults
-width,height,depth :: Double
-title :: String
-width  = 800
-height = 600
+depth :: Double
 depth  = 32
+
+title :: String
 title  = "Phraskell"
 
 -- CLI flag used to customize the applications behavior
@@ -31,6 +30,7 @@ data CLIFlag
   | CLIX String      -- x value
   | CLIY String      -- y value
   | CLIZoom String   -- zoom value
+  | CLIMaxIter Integer   -- max iteration value
 
 -- Display some usage informantion on standard output
 usage :: IO ()
@@ -54,23 +54,20 @@ parseOpts args =
     (o,n,[])   -> return o
     _          -> mzero
 
--- Create an application using the given screen, fractal surface and cli flags
-mkApp :: Surface -> Surface -> [CLIFlag] -> App
-mkApp scr fractalSurface flags = do
-  (App def (IterFrame []) scr fractalSurface) `initWithFlags` flags
-    where initWithFlags a f = foldl modifyAppWithOpt a f
+-- Create a viewer with CLI flags
+mkViewer :: [CLIFlag] -> Viewer
+mkViewer = foldl alterViewerWithFlag def
 
--- Alter an application regarding an option flag
-modifyAppWithOpt :: App -> CLIFlag -> App
-modifyAppWithOpt app f = app { appViewer = newViewer }
-  where viewer = appViewer app
-        newViewer = case f of
-          CLIWidth s  -> viewer { viewerWidth = read s }
-          CLIHeight s -> viewer { viewerHeight = read s }
-          CLIX s      -> viewer { viewerX = read s }
-          CLIY s      -> viewer { viewerX = read s }
-          CLIZoom s   -> viewer { viewerZoom = read s }
-          _           -> viewer
+-- alter a viewer regarding an option flag
+alterViewerWithFlag :: Viewer -> CLIFlag -> Viewer
+alterViewerWithFlag v f = case f of
+  CLIWidth s   -> v { viewerWidth = read s }
+  CLIHeight s  -> v { viewerHeight = read s }
+  CLIX s       -> v { viewerX = read s }
+  CLIY s       -> v { viewerX = read s }
+  CLIZoom s    -> v { viewerZoom = read s }
+  CLIMaxIter i -> v { viewerMaxIter = i }
+  _            -> v
 
 -- Entry point
 main = do
@@ -79,12 +76,13 @@ main = do
   args <- getArgs
   params <- runMaybeT $ do
              cliOpts <- (parseOpts args) 
-             maybeScreen <- MaybeT $ trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
-             scr <- MaybeT $ trySetVideoMode (floor width) (floor height) (floor depth) [HWSurface,DoubleBuf]
-             fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor width) (floor height) (floor depth) 0 0 0 0
-             return (cliOpts,scr,fractalSurface)
+             viewer <- return $ mkViewer cliOpts
+             maybeScreen <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
+             scr <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
+             fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) 0 0 0 0
+             return (viewer,scr,fractalSurface)
   case params of
-    Just (cliOpts,scr,fractalSurface) -> launch $ mkApp scr fractalSurface cliOpts
+    Just (viewer,scr,fractalSurface) -> launch $ App viewer (IterFrame []) scr fractalSurface
     _                                 -> putStrLn "something just went wrong! :("
   print "Bye!"
     where launch app = do
