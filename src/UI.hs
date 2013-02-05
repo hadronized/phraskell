@@ -1,8 +1,10 @@
 module UI where
 
 import Application
+import Control.Monad
 import Graphics.UI.SDL
 import UI.Impl
+import Viewer
 
 treatEvents :: App -> IO (Bool,App)
 treatEvents app = do
@@ -13,9 +15,17 @@ treatEvents app = do
     KeyUp k -> case symKey k of
       SDLK_ESCAPE -> quit
       SDLK_SPACE  -> queryCursorState >>= showCursor . not >> nochange
+      SDLK_MINUS  -> alter $ (\a -> let v    = appViewer a
+                                        maxi = viewerMaxIter v
+                                    in return a { appViewer = v { viewerMaxIter = maxi-50 } })
+      SDLK_PLUS   -> alter $ (\a -> let v    = appViewer a
+                                        maxi = viewerMaxIter v
+                                    in return a { appViewer = v { viewerMaxIter = maxi+50 } })
+
       _           -> loopback
     MouseButtonUp x y b -> case b of
       ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y) 2
+      _ -> loopback
     MouseMotion x y _ _ -> alter $ onMouseMotion (fromIntegral x) (fromIntegral y) 2
     _  -> loopback
  where quit     = return (False,app)
