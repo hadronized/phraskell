@@ -9,10 +9,11 @@ import Viewer
 
 -- Take the position of the mouse, the zoom factor, the application, and regenerate
 -- the fractal frame (also update the app’s viewer).
-onIterFrameUpdate :: Double -> Double -> Double -> App -> IO App
-onIterFrameUpdate x y zf app = do
+onIterFrameUpdate :: Double -> Double -> App -> IO App
+onIterFrameUpdate x y app = do
   let cviewer     = appViewer app
       cz          = viewerZoom cviewer
+      zf          = viewerZoomf cviewer
       (rx :+ ry)  = toCart (viewerWidth cviewer) (viewerHeight cviewer) (x :+ y)
       (nx,ny)     = (viewerX cviewer + rx/cz,viewerY cviewer + ry/cz)
       newViewer   = cviewer { viewerX = nx, viewerY = ny, viewerZoom = cz*zf }
@@ -27,14 +28,15 @@ onFractalFrameUpdate app = do
   putStrLn "done!"
   return app { appViewer = viewer, appIterFrame = iterf }
  
-onMouseMotion :: Int -> Int -> Double -> App -> IO App
-onMouseMotion mx my zf app = do
+onMouseMotion :: Int -> Int -> App -> IO App
+onMouseMotion mx my app = do
   -- first, create the Rect that defines the cursor position according to the mouse position
   let viewer = appViewer app
       rw = floor $ viewerWidth viewer / zf
       rh = floor $ viewerHeight viewer / zf
       rx = mx - rw `div` 2
       ry = my - rh `div` 2
+      zf = viewerZoomf viewer
   maybeZoomSurf <- tryCreateRGBSurface [HWSurface] rw rh 32 0 0 0 0
   case maybeZoomSurf of
     Nothing -> return app
