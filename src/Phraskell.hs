@@ -88,8 +88,6 @@ main = do
     where launch app = do
             enableKeyRepeat 200 5
             onFractalFrameUpdate app >>= loop
-            SDL.flip $ appScreen app
           loop app = do
             (goon,newApp) <- treatEvents app
-            SDL.flip $ appScreen app
             when goon $ loop newApp

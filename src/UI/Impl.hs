@@ -25,6 +25,7 @@ onFractalFrameUpdate app = do
       iterf  = mkIterFrame viewer
   putStr $ "updating fractal " ++ show app ++ "... "
   pixelizeSurface iterf (appFractalFrame app)
+  SDL.flip $ appScreen app
   putStrLn "done!"
   return app { appViewer = viewer, appIterFrame = iterf }
  
@@ -46,5 +47,6 @@ onMouseMotion mx my app = do
       fillRect zoomSurf Nothing pixel
       blitSurface (appFractalFrame app) Nothing (appScreen app) Nothing
       blitSurface zoomSurf Nothing (appScreen app) (Just $ Rect rx ry rw rh)
+      SDL.flip $ appScreen app
       freeSurface $ zoomSurf
       return app
