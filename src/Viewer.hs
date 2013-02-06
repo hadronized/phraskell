@@ -26,4 +26,4 @@ instance Show Viewer where
               ++ "]"
 
 instance Default Viewer where
-  def = Viewer 800 600 0.8 0.5 (-0.5) 0 500 0 mandelbrot
+  def = Viewer 800 600 0.8 2 (-0.5) 0 500 0 mandelbrot

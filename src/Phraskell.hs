@@ -23,13 +23,13 @@ title  = "Phraskell"
 
 -- CLI flag used to customize the applications behavior
 data CLIFlag
-  = CLIVersion       -- version of the program
-  | CLIFullscreen    -- should the app in fullscreen mode?
-  | CLIWidth String  -- width of the screen
-  | CLIHeight String -- heigth of the sceen
-  | CLIX String      -- x value
-  | CLIY String      -- y value
-  | CLIZoom String   -- zoom value
+  = CLIVersion           -- version of the program
+  | CLIFullscreen        -- should the app in fullscreen mode?
+  | CLIWidth String      -- width of the screen
+  | CLIHeight String     -- heigth of the sceen
+  | CLIX String          -- x value
+  | CLIY String          -- y value
+  | CLIZoom String       -- zoom value
   | CLIMaxIter Integer   -- max iteration value
 
 -- Display some usage informantion on standard output
@@ -86,7 +86,7 @@ main = do
     _                                -> putStrLn "something just went wrong! :("
   print "Bye!"
     where launch app = do
-            enableKeyRepeat 200 10
+            enableKeyRepeat 200 5
             onFractalFrameUpdate app >>= loop
             SDL.flip $ appScreen app
           loop app = do
