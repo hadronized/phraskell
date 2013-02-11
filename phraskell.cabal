@@ -28,3 +28,4 @@ executable phraskell
   -- other-modules:       
   build-depends:       base ==4.6.*, SDL ==0.6.*, mtl ==2.1.*, transformers ==0.3.*
   hs-source-dirs:      src
+  ghc-prof-options:    -O2 -Wall -prof -auto-all -caf-all -rtsopts
