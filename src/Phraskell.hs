@@ -46,6 +46,7 @@ options =
   , Option ['x']     ["rx","relx"]        (ReqArg CLIX "X")            "x displacement"
   , Option ['y']     ["ry","rely"]        (ReqArg CLIY "Y")            "y displacement"
   , Option ['z']     ["zoom"]             (ReqArg CLIZoom "ZOOM")      "zoom factor"
+  , Option ['f']     ["fullscreen"]       (NoArg CLIFullscreen)        "launch in fullscreen"
   ]
 
 -- Parse options and maybe return a tuple of filled flags and non-options
@@ -62,13 +63,14 @@ mkViewer = foldl alterViewerWithFlag def
 -- alter a viewer regarding an option flag
 alterViewerWithFlag :: Viewer -> CLIFlag -> Viewer
 alterViewerWithFlag v f = case f of
-  CLIWidth s   -> v { viewerWidth = read s }
-  CLIHeight s  -> v { viewerHeight = read s }
-  CLIX s       -> v { viewerX = read s }
-  CLIY s       -> v { viewerX = read s }
-  CLIZoom s    -> v { viewerZoom = read s }
-  CLIMaxIter i -> v { viewerMaxIter = i }
-  _            -> v
+  CLIWidth s    -> v { viewerWidth = read s }
+  CLIHeight s   -> v { viewerHeight = read s }
+  CLIX s        -> v { viewerX = read s }
+  CLIY s        -> v { viewerX = read s }
+  CLIZoom s     -> v { viewerZoom = read s }
+  CLIMaxIter i  -> v { viewerMaxIter = i }
+  CLIFullscreen -> v { viewerFullscreen = True }
+  _             -> v
 
 -- Entry point
 main = do
@@ -78,7 +80,7 @@ main = do
   params <- runMaybeT $ do
               cliOpts        <- (parseOpts args) 
               viewer         <- return $ mkViewer cliOpts
-              maybeScreen    <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
+              maybeScreen    <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) ([HWSurface,DoubleBuf] ++ if viewerFullscreen viewer then [Fullscreen] else [])
               scr            <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
               fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) 0 0 0 0
               gui            <- createGUI viewer

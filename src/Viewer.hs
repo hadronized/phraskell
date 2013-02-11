@@ -4,15 +4,16 @@ import Default
 import Fractal (FractalProgression, mandelbrot)
 
 data Viewer = Viewer {
-    viewerWidth        :: Double             -- current width value
-  , viewerHeight       :: Double             -- current height value
-  , viewerZoom         :: Double             -- current zoom value
-  , viewerZoomf        :: Double             -- current zoof factor value
-  , viewerX            :: Double             -- current x displacement value
-  , viewerY            :: Double             -- current y displacement value
-  , viewerMaxIter      :: Integer            -- current max iteration value
-  , viewerColorSeed    :: Int                -- current color seed value
-  , viewerProgression  :: FractalProgression -- current fractal equation
+    viewerWidth       :: Double             -- current width value
+  , viewerHeight      :: Double             -- current height value
+  , viewerZoom        :: Double             -- current zoom value
+  , viewerZoomf       :: Double             -- current zoof factor value
+  , viewerX           :: Double             -- current x displacement value
+  , viewerY           :: Double             -- current y displacement value
+  , viewerMaxIter     :: Integer            -- current max iteration value
+  , viewerColorSeed   :: Int                -- current color seed value
+  , viewerProgression :: FractalProgression -- current fractal equation
+  , viewerFullscreen  :: Bool               -- running in fullscreen?
 }
 
 instance Show Viewer where
@@ -26,4 +27,4 @@ instance Show Viewer where
               ++ "]"
 
 instance Default Viewer where
-  def = Viewer 800 600 0.8 2 (-0.5) 0 500 0 mandelbrot
+  def = Viewer 800 600 0.8 2 (-0.5) 0 500 0 mandelbrot False
