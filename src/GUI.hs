@@ -34,5 +34,5 @@ updateGUIZoomArea gui v = do
   case maybeZoomArea of
     Nothing       -> return gui
     Just zoomArea -> do
-      freeSurface $ guiZoomArea gui
+      --freeSurface $ guiZoomArea gui
       return gui { guiZoomArea = zoomArea }

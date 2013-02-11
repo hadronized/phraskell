@@ -27,24 +27,3 @@ onFractalFrameUpdate app = do
   pixelizeSurface iterf (appFractalFrame app)
   putStrLn "done!"
   return app { appViewer = viewer, appIterFrame = iterf }
- 
-onMouseMotion :: Int -> Int -> App -> IO App
-onMouseMotion mx my app = do
-  -- first, create the Rect that defines the cursor position according to the mouse position
-  let viewer = appViewer app
-      rw = floor $ viewerWidth viewer / zf
-      rh = floor $ viewerHeight viewer / zf
-      rx = mx - rw `div` 2
-      ry = my - rh `div` 2
-      zf = viewerZoomf viewer
-  maybeZoomSurf <- tryCreateRGBSurface [HWSurface] rw rh 32 0 0 0 0
-  case maybeZoomSurf of
-    Nothing -> return app
-    Just zoomSurf -> do
-      setAlpha zoomSurf [SrcAlpha] 127 -- TODO: Bool, what for?
-      pixel <- mapRGB (surfaceGetPixelFormat zoomSurf) 60 60 60
-      fillRect zoomSurf Nothing pixel
-      blitSurface (appFractalFrame app) Nothing (appScreen app) Nothing
-      blitSurface zoomSurf Nothing (appScreen app) (Just $ Rect rx ry rw rh)
-      freeSurface $ zoomSurf
-      return app

@@ -3,12 +3,13 @@ module UI where
 import Application
 import Control.Monad
 import Graphics.UI.SDL
+import GUI
 import UI.Impl
 import Viewer
 
 treatEvents :: App -> IO (Bool,App)
 treatEvents app = do
-  event <- waitEvent
+  event <- pollEvent
   case event of
     NoEvent -> nochange
     Quit    -> quit
@@ -21,21 +22,27 @@ treatEvents app = do
       SDLK_PLUS      -> alter $ (\a -> let v    = appViewer a
                                            maxi = viewerMaxIter v
                                        in return a { appViewer = v { viewerMaxIter = maxi+50 } })
-      _           -> loopback
+      _           -> loopback app
     KeyDown k -> case symKey k of
-      SDLK_LEFTPAREN  -> alter $ (\a -> let v  = appViewer a
-                                            zf = viewerZoomf v
-                                        in return a { appViewer = v { viewerZoomf = zf-0.1 } })
-      SDLK_RIGHTPAREN -> alter $ (\a -> let v  = appViewer a
-                                            zf = viewerZoomf v
-                                       in return a { appViewer = v { viewerZoomf = zf+0.1 } })
-      _               -> loopback
+      SDLK_LEFTPAREN  -> do
+        let v  = appViewer app
+            zf = viewerZoomf v
+            na = app { appViewer = v { viewerZoomf = zf-0.1 } }
+        newGUI <- updateGUIZoomArea (appGUI na) (appViewer na)
+        loopback $ na { appGUI = newGUI }
+      SDLK_RIGHTPAREN  -> do
+        let v  = appViewer app
+            zf = viewerZoomf v
+            na = app { appViewer = v { viewerZoomf = zf+0.1 } }
+        newGUI <- updateGUIZoomArea (appGUI na) (appViewer na)
+        loopback $ na { appGUI = newGUI }
+
+      _               -> loopback app
     MouseButtonUp x y b -> case b of
       ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y)
-      _ -> loopback
-    MouseMotion x y _ _ -> alter $ onMouseMotion (fromIntegral x) (fromIntegral y)
-    _  -> loopback
+      _ -> loopback app
+    _  -> loopback app
  where quit     = return (False,app)
        nochange = return (True,app)
-       alter f  = f app >>= \a -> return (True,a)
-       loopback = treatEvents app
+       alter f  = f app >>= loopback
+       loopback = treatEvents

@@ -91,7 +91,7 @@ main = do
     
   print "Bye!"
     where launch app = do
-            enableKeyRepeat 200 5
+            enableKeyRepeat 200 10
             onFractalFrameUpdate app >>= loop
           loop app = do
             (goon,newApp) <- treatEvents app
