@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                phraskell
-version:             0.1.0
+version:             0.1.1
 synopsis:            A fractal viewer.
 description:         A fractal viewer with some cool features like changing colorscheme, screenshot, buddhabrot, and so on.
 homepage:            https://github.com/skypers/phraskell
@@ -21,7 +21,7 @@ source-repository head
 source-repository this
   type:                git
   location:            git://github.com/skypers/phraskell.git
-  tag:                 0.1.0
+  tag:                 0.1.1
 
 executable phraskell
   main-is:             Phraskell.hs
