@@ -21,7 +21,7 @@ source-repository head
 source-repository this
   type:                git
   location:            git://github.com/skypers/phraskell.git
-  tag:                 v0.1.0
+  tag:                 0.1.0
 
 executable phraskell
   main-is:             Phraskell.hs
