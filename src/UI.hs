@@ -36,7 +36,6 @@ treatEvents app = do
             na = app { appViewer = v { viewerZoomf = zf+0.1 } }
         newGUI <- updateGUIZoomArea (appGUI na) (appViewer na)
         loopback $ na { appGUI = newGUI }
-
       _               -> loopback app
     MouseButtonUp x y b -> case b of
       ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y)
