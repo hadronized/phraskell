@@ -6,6 +6,7 @@ import Default
 import Fractal
 import FractalModel
 import Graphics.UI.SDL as SDL
+import GUI
 import Render
 import System.Environment
 import System.Console.GetOpt
@@ -75,19 +76,30 @@ main = do
 
   args <- getArgs
   params <- runMaybeT $ do
-             cliOpts <- (parseOpts args) 
-             viewer <- return $ mkViewer cliOpts
-             maybeScreen <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
-             scr <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
-             fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) 0 0 0 0
-             return (viewer,scr,fractalSurface)
+              cliOpts        <- (parseOpts args) 
+              viewer         <- return $ mkViewer cliOpts
+              maybeScreen    <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
+              scr            <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
+              fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) 0 0 0 0
+              gui            <- createGUI viewer
+              return (viewer,scr,fractalSurface,gui)
   case params of
-    Just (viewer,scr,fractalSurface) -> launch $ App viewer (IterFrame []) scr fractalSurface
-    _                                -> putStrLn "something just went wrong! :("
+    Nothing -> putStrLn "something just went wrong! :("
+    Just (viewer,scr,fractalSurface,gui) -> do
+      let app = App viewer (IterFrame []) scr fractalSurface True gui
+      launch app
+    
   print "Bye!"
     where launch app = do
             enableKeyRepeat 200 5
             onFractalFrameUpdate app >>= loop
           loop app = do
             (goon,newApp) <- treatEvents app
-            when goon $ loop newApp
+            case goon of
+              False -> return ()
+              True  -> do
+                blitSurface (appFractalFrame app) Nothing (appScreen app) Nothing
+                (mx,my,_) <- getMouseState
+                renderGUI app mx my
+                SDL.flip $ appScreen app
+                loop newApp
