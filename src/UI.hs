@@ -15,7 +15,7 @@ treatEvents app = do
     Quit    -> quit
     KeyUp k -> case symKey k of
       SDLK_ESCAPE    -> quit
-      SDLK_SPACE     -> queryCursorState >>= showCursor . not >> nochange
+      SDLK_SPACE     -> alter $ \a -> let vg = appVisibleGUI a in return a { appVisibleGUI = not vg }
       SDLK_MINUS     -> alter $ (\a -> let v    = appViewer a
                                            maxi = viewerMaxIter v
                                        in return a { appViewer = v { viewerMaxIter = maxi-50 } })

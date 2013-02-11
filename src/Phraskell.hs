@@ -93,6 +93,7 @@ main = do
     
   print "Bye!"
     where launch app = do
+            showCursor False
             enableKeyRepeat 200 10
             onFractalFrameUpdate app >>= loop
           loop app = do
@@ -102,6 +103,6 @@ main = do
               True  -> do
                 blitSurface (appFractalFrame app) Nothing (appScreen app) Nothing
                 (mx,my,_) <- getMouseState
-                renderGUI app mx my
+                when (appVisibleGUI app) $ renderGUI app mx my
                 SDL.flip $ appScreen app
                 loop newApp
