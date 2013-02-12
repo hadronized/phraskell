@@ -16,6 +16,7 @@ treatEvents app = do
     KeyUp k -> case symKey k of
       SDLK_ESCAPE    -> quit
       SDLK_SPACE     -> alter $ \a -> let vg = appVisibleGUI a in return a { appVisibleGUI = not vg }
+      SDLK_RETURN    -> alter onFractalFrameUpdate
       SDLK_MINUS     -> alter $ (\a -> let v    = appViewer a
                                            maxi = viewerMaxIter v
                                        in return a { appViewer = v { viewerMaxIter = maxi-50 } })
