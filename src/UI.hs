@@ -19,7 +19,7 @@ treatEvents app = do
       SDLK_RETURN    -> alter onFractalFrameUpdate
       SDLK_MINUS     -> alter $ (\a -> let v    = appViewer a
                                            maxi = viewerMaxIter v
-                                       in return a { appViewer = v { viewerMaxIter = maxi-50 } })
+                                       in return a { appViewer = v { viewerMaxIter = max 0 $ maxi-50 } })
       SDLK_PLUS      -> alter $ (\a -> let v    = appViewer a
                                            maxi = viewerMaxIter v
                                        in return a { appViewer = v { viewerMaxIter = maxi+50 } })
@@ -28,7 +28,7 @@ treatEvents app = do
       SDLK_LEFTPAREN  -> do
         let v  = appViewer app
             zf = viewerZoomf v
-            na = app { appViewer = v { viewerZoomf = zf-0.1 } }
+            na = app { appViewer = v { viewerZoomf = max 0.1 $ zf-0.1 } }
         newGUI <- updateGUIZoomArea (appGUI na) (appViewer na)
         loopback $ na { appGUI = newGUI }
       SDLK_RIGHTPAREN  -> do
