@@ -34,8 +34,8 @@ data CLIFlag
   | CLIMaxIter Integer   -- max iteration value
 
 -- Display some usage informantion on standard output
-usage :: IO ()
-usage = putStrLn $ usageInfo "usage: phraskell [OPTIONS]" options
+usage :: String
+usage = usageInfo "usage: phraskell [OPTIONS]" options
 
 -- All possible CLI options
 options :: [OptDescr CLIFlag]
@@ -86,24 +86,22 @@ main = do
               gui            <- createGUI viewer
               return (viewer,scr,fractalSurface,gui)
   case params of
-    Nothing -> putStrLn "something just went wrong! :("
+    Nothing -> putStrLn usage
     Just (viewer,scr,fractalSurface,gui) -> do
       let app = App viewer (IterFrame []) scr fractalSurface True gui
       launch app
-    
-  print "Bye!"
-    where launch app = do
-            showCursor False
-            enableKeyRepeat 200 10
-            onFractalFrameUpdate app >>= loop
-          loop app = do
-            (goon,newApp) <- treatEvents app
-            case goon of
-              False -> return ()
-              True  -> do
-                blitSurface (appFractalFrame app) Nothing (appScreen app) Nothing
-                (mx,my,_) <- getMouseState
-                when (appVisibleGUI app) $ renderGUI app mx my
-                SDL.flip $ appScreen app
-                delay 10
-                loop newApp
+        where launch app = do
+                showCursor False
+                enableKeyRepeat 200 10
+                onFractalFrameUpdate app >>= loop
+              loop app = do
+                (goon,newApp) <- treatEvents app
+                case goon of
+                  False -> return ()
+                  True  -> do
+                    blitSurface (appFractalFrame app) Nothing (appScreen app) Nothing
+                    (mx,my,_) <- getMouseState
+                    when (appVisibleGUI app) $ renderGUI app mx my
+                    SDL.flip $ appScreen app
+                    delay 10
+                    loop newApp
