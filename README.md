@@ -10,3 +10,4 @@ Here’s the list of the all key bindings in Haskell:
     * _+_: increase the max iter value
     * _-_: decrease the max iter value
     * _space_: toggle the GUI on/off
+    * _return_: refresh of the fractal progression
