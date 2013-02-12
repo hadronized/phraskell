@@ -105,4 +105,5 @@ main = do
                 (mx,my,_) <- getMouseState
                 when (appVisibleGUI app) $ renderGUI app mx my
                 SDL.flip $ appScreen app
+                delay 10
                 loop newApp
