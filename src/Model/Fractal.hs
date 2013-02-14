@@ -45,3 +45,7 @@ mkIterFrame v =
       ref   = screen w h $ offsets rx ry . oZoom z
       eval  = map $ map (\(x :+ y) -> evalFrac p (0 :+ 0) (x :+ y) maxi)
   in IterFrame $ eval ref
+
+-- Regenerate the model
+regen :: FractalModel -> Viewer -> FractalModel
+regen (IterFrame _) = mkIterFrame 
