@@ -12,6 +12,7 @@ data CLIFlag
   | CLIY          Float   -- y value
   | CLIZoom       Float   -- zoom value
   | CLIMaxIter    Integer -- max iteration value
+  | CLIModel      String  -- model flag
 
 -- Display some usage informantion on standard output
 usage :: String
@@ -27,6 +28,7 @@ options =
   , Option ['y']     ["ry","rely"]        (ReqArg CLIY "Y")            "y displacement"
   , Option ['z']     ["zoom"]             (ReqArg CLIZoom "ZOOM")      "zoom factor"
   , Option ['f']     ["fullscreen"]       (NoArg CLIFullscreen)        "launch in fullscreen"
+  , Option ['m']     ["model"]            (ReqArg CLIModel "MODEL")    "select the fracta model to use"
   ]
 
 -- Parse options and maybe return the CLI flags

@@ -1,6 +1,7 @@
 module Controller.Bootstrap where
 
 import Controller.CLI (CLIFlag)
+import Model.Fractal
 
 data Bootstrap = Bootstrap {
     bootFullscreen :: Bool
@@ -10,7 +11,7 @@ data Bootstrap = Bootstrap {
   , bootY          :: Float
   , bootZoom       :: Float
   , bootMaxIter    :: Integer
-  , bootModel      :: FractalModelFlag
+  , bootModel      :: FractalModel
 }
 
 def :: Bootstrap
@@ -28,4 +29,5 @@ alterBootstrap f b = case f of
   CLIY y         -> b { bootY = y }
   CLIZoom z      -> b { bootZoom = z }
   CLIMayIter i   -> b { bootMaxIter = i }
+  CLIModel _     -> b { bootModel = IterFrame [] } -- TODO: wat
   _              -> b
