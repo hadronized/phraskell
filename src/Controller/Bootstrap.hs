@@ -29,5 +29,9 @@ alterBootstrap f b = case f of
   CLIY y         -> b { bootY = y }
   CLIZoom z      -> b { bootZoom = z }
   CLIMayIter i   -> b { bootMaxIter = i }
-  CLIModel _     -> b { bootModel = IterFrame [] } -- TODO: wat
+  CLIModel str   -> b { bootModel = string2Model str } -- TODO: wat
   _              -> b
+
+string2Model :: String -> FractalModel
+string2Model "iter" = IterFrame []
+string2Model _      = IterFrame []
