@@ -23,7 +23,7 @@ alterBootstrap :: CLIFlag -> Bootstrap -> Bootstrap
 alterBootstrap f b = case f of
   CLIFullscreen  -> b { bootFullscreen = True }
   CLIWidth w     -> b { bootWidth = w }
-  CLIHegiht h    -> b { bootHegiht = h }
+  CLIHeight h    -> b { bootHeight = h }
   CLIX x         -> b { bootX = x }
   CLIY y         -> b { bootY = y }
   CLIZoom z      -> b { bootZoom = z }
