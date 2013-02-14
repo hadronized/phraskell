@@ -1,4 +1,4 @@
-module FractalModel where
+module Model.Fractal where
 
 import Data.Complex
 import Fractal
