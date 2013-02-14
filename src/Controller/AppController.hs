@@ -12,5 +12,5 @@ data AppController = AppController {
 
 fromBootstrap :: Bootstrap -> AppController
 fromBootstrap b =
-  let model = 
+  let model =
       view  =

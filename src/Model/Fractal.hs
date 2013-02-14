@@ -1,7 +1,7 @@
 module Model.Fractal where
 
 import Data.Complex
-import Fractal
+import Model.Progression
 import Viewer
 
 type FractalRef = [[FComplex]]
@@ -21,8 +21,9 @@ offsets rx ry (x :+ y) = (x+rx) :+ (y+ry)
 
 data FractalModel
   = IterFrame [[Integer]]
+  -- | Buddhabrot ...
 
-  -- for x and y, evaluate the fractal equation
+-- for x and y, evaluate the fractal equation
 evalFrac :: FractalProgression -> FComplex -> FComplex -> Integer -> Integer
 evalFrac e z1 xy1 m = go z1 xy1 0
   where go z@(rp :+ ip) xy i

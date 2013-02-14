@@ -10,6 +10,7 @@ data Bootstrap = Bootstrap {
   , bootY          :: Float
   , bootZoom       :: Float
   , bootMaxIter    :: Integer
+  , bootModel      :: FractalModelFlag
 }
 
 def :: Bootstrap
