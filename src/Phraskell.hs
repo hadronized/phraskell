@@ -6,8 +6,4 @@ main = do
 
   args     <- getArgs
   cliflags <- parseOpts args
-  maybe (putStrLn usage) bootstrapWith cliflags
-
-bootstrapWith :: [CLIFlag] -> IO ()
-bootstrapWith f = do
-  
+  maybe (putStrLn usage) ??? cliflags
