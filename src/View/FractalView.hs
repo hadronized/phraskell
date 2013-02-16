@@ -3,11 +3,11 @@ module View.FractalView where
 import Model.FractalModel
 
 data FractalView
-  = StandardView
+  = StandardView Surface
 
-expose :: FractalModel -> FractalView -> Surface -> IO ()
-expose model view screen = case view of
-  StandardView -> pixelizeSurface model screen
+expose :: FractalModel -> FractalView -> IO ()
+expose model view = case view of
+  StandardView screen -> pixelizeSurface model screen
 
 type UV = (Int,Int)
 type UVs = [[UV]]
