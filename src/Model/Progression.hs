@@ -1,10 +1,22 @@
-module Fractal where
+module Fractal 
+  (
+    module Data.Complex ((:+))
+  , FComplex
+  , FractaProgression(..)
+  , mandelbrot
+  ) where
 
 import Data.Complex
 
 type FComplex = Complex Double
-type FractalProgression = (FComplex -> FComplex -> FComplex)
+
+data FractalProgression = FractalProgression {
+    progression :: FComplex -> FComplex -> FComplex
+  , start       :: FComplex
+}
+
+-- TODO: make FractalProgression an instance of Read
 
 -- mandelbrot progression
 mandelbrot :: FractalProgression
-mandelbrot z c = z^2 + c
+mandelbrot = FractalProgression (\z c -> z^2 + c) (fromIntegral 0)
