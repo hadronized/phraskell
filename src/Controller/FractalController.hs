@@ -8,4 +8,4 @@ data FractalController = FractalController {
 
 runFractalCtrl :: FractalController -> IO ()
 runFractalCtrl frac = do
-  runFractalView view model
+  runFractalView (view frac) (model frac)
