@@ -1,6 +1,6 @@
 module Controller.Bootstrap where
 
-import Controller.CLI (CLIFlag)
+import Controller.CLI
 import Model.Fractal
 
 data Bootstrap = Bootstrap {
@@ -15,20 +15,20 @@ data Bootstrap = Bootstrap {
 }
 
 def :: Bootstrap
-def = Bootstrap True 800 600 0 0 1 50
+def = Bootstrap True 800 600 0 0 1 50 (IterFrame [])
 
 bootstrap :: [CLIFlag] -> Bootstrap
-bootstrap f = foldl alterBootstrap def
+bootstrap = foldl alterBootstrap def
 
-alterBootstrap :: CLIFlag -> Bootstrap -> Bootstrap
-alterBootstrap f b = case f of
+alterBootstrap :: Bootstrap -> CLIFlag -> Bootstrap
+alterBootstrap b f = case f of
   CLIFullscreen  -> b { bootFullscreen = True }
   CLIWidth w     -> b { bootWidth = w }
   CLIHeight h    -> b { bootHeight = h }
   CLIX x         -> b { bootX = x }
   CLIY y         -> b { bootY = y }
   CLIZoom z      -> b { bootZoom = z }
-  CLIMayIter i   -> b { bootMaxIter = i }
+  CLIMaxIter i   -> b { bootMaxIter = i }
   CLIModel str   -> b { bootModel = string2Model str } -- TODO: wat
   _              -> b
 

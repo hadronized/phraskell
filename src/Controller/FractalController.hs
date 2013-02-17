@@ -1,5 +1,9 @@
 module Controller.FractalController where
 
+import Model.Fractal
+import Model.Progression
+import View.FractalView
+
 data FractalController = FractalController {
     progression :: FractalProgression
   , model       :: FractalModel
@@ -8,4 +12,4 @@ data FractalController = FractalController {
 
 runFractalCtrl :: FractalController -> IO ()
 runFractalCtrl frac = do
-  runFractalView (view frac) (model frac)
+  expose (model frac) (view frac)

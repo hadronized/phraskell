@@ -1,9 +1,9 @@
 module Controller.GUIController where
 
-import Graphics.UI.SDL
+import View.GUIView
 
 data GUIController = GUIController {
     guiCtrlVisible  :: Bool
-  , guiCtrlZoomArea :: Surface
+  , guiView         :: GUIView
 }
 

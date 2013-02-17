@@ -1,8 +1,10 @@
 module Controller.AppController where
 
-import Control.Monad (unless)
+import Control.Monad (when)
+import Control.Monad.Trans (lift)
+import Controller.Bootstrap
 import Controller.CLI
-import Controller.EventController
+import Controller.FractalController
 import Controller.GUIController
 import Data.Maybe (maybe)
 import Graphics.UI.SDL as SDL
@@ -24,9 +26,9 @@ fromBootstrap b = do
     Just scr -> do
       let progr = mandelbrot -- TODO: make it depend on the bootstrap
           mod   = bootModel b
-          fview = StandarView scr
+          fview = StandardView scr
           fctrl = FractalController progr mod fview
-      zoom <- tryCreateZoomArea (bootWidth b) (bootHeight a) 0.5
+      zoom <- tryCreateZoomArea (bootWidth b) (bootHeight b) 0.5
       case zoom of 
         Nothing   -> return Nothing
         Just zoom -> do
@@ -44,8 +46,8 @@ loop :: AppController -> IO ()
 loop app = do
   (continue,newApp) <- handleEvents app
   when continue $ do
-    runFractalCtrl (fractalCtrl app) -- view here?
-    runGUICtrl (guiCtrl app) -- view here?
+    runFractalCtrl (fractalCtrl app)
+    runGUICtrl (guiCtrl app)
     SDL.flip $ appScreen app
     loop app
 
@@ -58,9 +60,8 @@ tryGetScreen w h d t = do
 
 tryCreateZoomArea :: Int -> Int -> Float -> IO (Maybe Surface)
 tryCreateZoomArea w h zf = do
-  let rw = floor $ viewerWidth v / zf
-      rh = floor $ viewerHeight v / zf
-      zf = viewerZoomf v
+  let rw = floor $ w / zf
+      rh = floor $ h / zf
   zoomArea <- tryCreateRGBSurface [HWSurface] rw rh 32 0 0 0 0
   case zoomArea of
     Nothing -> return Nothing
@@ -73,3 +74,28 @@ tryCreateZoomArea w h zf = do
 -- destroy the render
 destroyRender :: IO ()
 destroyRender = SDL.quit
+
+handleEvents :: AppController -> IO (Bool,AppController)
+handleEvents app = do
+  event <- pollEvent
+  case event of
+    NoEvent -> nochange
+    Quit    -> quit
+    KeyUp k -> case symKey k of
+      SDLK_ESCAPE -> quit
+      SDLK_SPACE  -> loopback app
+      SDLK_RETURN -> loopback app
+      SDLK_MINUS  -> loopback app
+      SDLK_PLUS   -> loopback app
+      _           -> loopback app
+    KeyDown k -> case symKey k of
+      SDLK_LEFTPAREN  -> loopback app
+      SDLK_RIGHTPAREN -> loopback app
+      _               -> loopback app
+    MouseButtonUp x y b -> case b of
+      ButtonLeft -> loopback app
+      _          -> loopback app
+    _ -> loopback app
+ where quit     = return (False,app)
+       nochange = return (True,app)
+       loopback = handleEvents
