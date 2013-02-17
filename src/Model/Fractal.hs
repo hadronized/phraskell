@@ -27,12 +27,11 @@ evalFrac e z1 xy1 m = go z1 xy1 0
   where go z@(rp :+ ip) xy i
           | i > m = -1
           | rp^2 + ip^2 > 4.0 = i
-          | otherwise = go (e z xy) xy (i+1)
+          | otherwise = go ((progression e) z xy) xy (i+1)
 
 -- TODO: to simplify
-mkIterFrame :: FractalProgression -> Double -> Double -> Double -> Double -> Double -> Int -> FractalModel
-mkIterFrame p w h x y z i =
-  let w     = viewerWidth v
-      ref   = screen w h $ offsets rx ry . oZoom z
-      eval  = map $ map (\(x :+ y) -> evalFrac p (0 :+ 0) (x :+ y) maxi)
+mkIterFrame :: FractalProgression -> Double -> Double -> Double -> Double -> Double -> Integer -> FractalModel
+mkIterFrame p w h xd yd z i =
+  let ref  = screen w h $ offsets xd yd . oZoom z
+      eval = map $ map (\(x :+ y) -> evalFrac p (start p) (x :+ y) i)
   in IterFrame $ eval ref

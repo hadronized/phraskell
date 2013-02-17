@@ -1,6 +1,6 @@
 module Controller.AppController where
 
-import Comtroll.Monad (unless)
+import Control.Monad (unless)
 import Controller.CLI
 import Controller.EventController
 import Controller.GUIController
@@ -11,23 +11,27 @@ import Model.Progression
 import View.FractalView
 
 data AppController = AppController {
-    appScreen    :: Surface
-  , fractalCtrl  :: FractalController
-  , guiCtrl      :: GUIController
+    appScreen   :: Surface
+  , fractalCtrl :: FractalController
+  , guiCtrl     :: GUIController
 }
 
 fromBootstrap :: Bootstrap -> IO (Maybe AppController)
 fromBootstrap b = do
-  -- first construct the view; we need a Surface!
-  screen <- tryGetScreen $ (bootWdith b) (bootHeight b) 32 "phraskell"
+  screen <- tryGetScreen $ (bootWidth b) (bootHeight b) 32 "phraskell"
   case screen of
     Nothing  -> return Nothing
     Just scr -> do
-      -- now let’s init the fractal controller
       let progr = mandelbrot -- TODO: make it depend on the bootstrap
           mod   = bootModel b
           fview = StandarView scr
-      return $ AppController scr (FractalController progr mod fview) GUIHERE
+          fctrl = FractalController progr mod fview
+      zoom <- tryCreateZoomArea (bootWidth b) (bootHeight a) 0.5
+      case zoom of 
+        Nothing   -> return Nothing
+        Just zoom -> do
+          let guictrl = GUIController True zoom
+          return Just $ AppController scr fctrl guictrl
 
 runCtrl :: AppController -> IO ()
 runCtrl app = do
@@ -51,6 +55,20 @@ tryGetScreen w h d t = do
   screen <- SDL.trySetVideoMode w h d [HWSurface, DoubleBuf]
   SDL.setCaption t [] -- we don’t give a fuck about the title icon
   return screen
+
+tryCreateZoomArea :: Int -> Int -> Float -> IO (Maybe Surface)
+tryCreateZoomArea w h zf = do
+  let rw = floor $ viewerWidth v / zf
+      rh = floor $ viewerHeight v / zf
+      zf = viewerZoomf v
+  zoomArea <- tryCreateRGBSurface [HWSurface] rw rh 32 0 0 0 0
+  case zoomArea of
+    Nothing -> return Nothing
+    Just zoom -> do
+      lift $ setAlpha zoomArea [SrcAlpha] 127 -- TODO: Bool, what for?
+      pixel <- lift $ mapRGB (surfaceGetPixelFormat zoomArea) 60 60 60
+      lift $ fillRect zoomArea Nothing pixel
+      return zoom
 
 -- destroy the render
 destroyRender :: IO ()

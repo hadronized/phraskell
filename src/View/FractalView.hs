@@ -1,6 +1,9 @@
 module View.FractalView where
 
-import Model.FractalModel
+import Control.Monad
+import Graphics.UI.SDL as SDL
+import Foreign
+import Model.Fractal
 
 data FractalView
   = StandardView Surface

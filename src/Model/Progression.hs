@@ -1,8 +1,8 @@
-module Fractal 
+module Model.Progression
   (
-    module Data.Complex ((:+))
+    module Data.Complex
   , FComplex
-  , FractaProgression(..)
+  , FractalProgression(..)
   , mandelbrot
   ) where
 

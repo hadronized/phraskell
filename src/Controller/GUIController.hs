@@ -7,7 +7,3 @@ data GUIController = GUIController {
   , guiCtrlZoomArea :: Surface
 }
 
-createGUICtrl :: 
-runGUICtrl :: GUIController -> IO ()
-runGUICtrl gui = do
-

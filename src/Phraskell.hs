@@ -1,9 +1,14 @@
 import Data.Maybe (maybe)
-import CLI (CLIFlag,CLIVersion,options,parseOpts,usage)
+import Controller.AppController
+import Controller.CLI (CLIFlag,CLIVersion,options,parseOpts,usage)
 
 main = do
   hSetBuffering stdout NoBuffering
 
   args     <- getArgs
   cliflags <- parseOpts args
-  maybe (putStrLn usage) ??? cliflags
+  maybe (putStrLn usage) entrypoint cliflags
+
+entrypoint :: AppController -> IO ()
+entrypoint app = do
+  return ()

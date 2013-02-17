@@ -1,5 +1,6 @@
 module Controller.EventController where
 
+import Controller.AppController
 import Graphics.UI.SDL
 
 handleEvents :: AppController -> IO (Bool,AppController)
