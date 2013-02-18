@@ -2,10 +2,11 @@ module Controller.Fractal where
 
 import Model.Fractal
 import Model.Progression
-import View.FractalView
+import View.Fractal
 
 data FractalController = FractalController {
     progression :: FractalProgression
+  , zoomFactor  :: Double
   , model       :: FractalModel
   , view        :: FractalView
 }
