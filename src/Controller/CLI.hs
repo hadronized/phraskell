@@ -16,7 +16,7 @@ data CLIFlag
   | CLIMaxIter    Integer -- max iteration value
   | CLIModel      String  -- model flag
 
--- Display some usage informantion on standard output
+-- Display some usage information on standard output
 usage :: String
 usage = usageInfo "usage: phraskell [OPTIONS]" options
 
