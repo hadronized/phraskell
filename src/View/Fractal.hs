@@ -1,10 +1,4 @@
-module View.Fractal
-  (
-    FractalView(
-        StandardView
-      )
-  , expose
-  ) where
+module View.Fractal where
 
 import Control.Monad
 import Graphics.UI.SDL as SDL
@@ -19,7 +13,7 @@ data FractalView
 
 expose :: FractalModel -> FractalView -> IO ()
 expose model view = case view of
-  StandardView screen fractal -> blitSurface fract Nothing screen Nothing
+  StandardView screen fractal -> blitSurface fractal Nothing screen Nothing >> return ()
 
 type UV = (Int,Int)
 type UVs = [[UV]]

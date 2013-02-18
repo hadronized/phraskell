@@ -8,6 +8,8 @@ data GUIView
       , stdViewZoomArea :: Surface
     }
 
+{-
 expose :: GUIView -> IO ()
 expose view = case view of
   StandardView screen zoom ->
+-}
