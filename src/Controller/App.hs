@@ -1,16 +1,16 @@
-module Controller.AppController where
+module Controller.App where
 
 import Control.Monad (when)
 import Control.Monad.Trans (lift)
 import Controller.Bootstrap
 import Controller.CLI
-import Controller.FractalController
-import Controller.GUIController
+import Controller.Fractal
+import Controller.GUI
 import Data.Maybe (maybe)
 import Graphics.UI.SDL as SDL
 import Model.Fractal
 import Model.Progression
-import View.FractalView
+import View.Fractal
 
 data AppController = AppController {
     appScreen   :: Surface

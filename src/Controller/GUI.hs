@@ -1,4 +1,4 @@
-module Controller.GUIController where
+module Controller.GUI where
 
 import View.GUIView
 

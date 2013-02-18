@@ -1,4 +1,4 @@
-module Controller.FractalController where
+module Controller.Fractal where
 
 import Model.Fractal
 import Model.Progression

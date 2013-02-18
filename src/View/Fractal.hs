@@ -1,4 +1,4 @@
-module View.FractalView where
+module View.Fractal where
 
 import Control.Monad
 import Graphics.UI.SDL as SDL
