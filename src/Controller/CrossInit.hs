@@ -1,14 +1,23 @@
-module CrossInit where
+module Controller.CrossInit where
 
+import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
+import Controller.App
+import Controller.Fractal
+import Controller.GUI
 import Controller.Bootstrap
+import Graphics.UI.SDL as SDL
+import Model.Progression
+import Model.Fractal
+import View.Fractal as F
+import View.GUI as G
 
 title :: String
 title = "phraskell 0.1.3"
 
 crossInit :: Bootstrap -> MaybeT IO AppController
 crossInit b = do
-  lift SDL.init [InitVideo] -- first thing to do, init SDL
+  lift $ SDL.init [InitVideo] -- first thing to do, init SDL
   let w           = bootWidth b
       h           = bootHeight b
       model       = bootModel b
@@ -36,5 +45,5 @@ tryCreateSurface w h d = MaybeT $ SDL.tryCreateRGBSurface [HWSurface] w h d 0 0 
 tryGetScreen :: Int -> Int -> Int -> String -> MaybeT IO Surface
 tryGetScreen w h d t = do
   screen <- MaybeT $ SDL.trySetVideoMode w h d [HWSurface, DoubleBuf]
-  SDL.setCaption t [] -- we don’t give a fuck about the title icon
+  lift $ SDL.setCaption t [] -- we don’t give a fuck about the title icon
   return screen

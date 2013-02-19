@@ -11,7 +11,7 @@ data GUIController = GUIController {
 }
 
 runGUICtrl :: GUIController -> IO ()
-runGUICtrl = return ()
+runGUICtrl _ = return ()
 
 tryCreateZoomWindow :: Int -> Int -> Double -> MaybeT IO Surface
 tryCreateZoomWindow w h zf = do
