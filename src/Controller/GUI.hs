@@ -7,7 +7,7 @@ import Graphics.UI.SDL
 
 data GUIController = GUIController {
     guiCtrlVisible :: Bool
-  , guiView        :: GUIView
+  , guiCtrlView    :: GUIView
 }
 
 runGUICtrl :: GUIController -> IO ()
