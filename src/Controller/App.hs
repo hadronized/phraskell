@@ -55,7 +55,7 @@ handleEvents app = do
     KeyUp k -> case symKey k of
       SDLK_ESCAPE -> quit
       SDLK_SPACE  -> loopback $ app { appGUIVisible = toggle (appGUIVisible app) }
-      SDLK_RETURN -> loopback app
+      SDLK_RETURN -> alter $ updateModel >=> updateModelView
       SDLK_MINUS  -> loopback app
       SDLK_PLUS   -> loopback app
       _           -> loopback app
