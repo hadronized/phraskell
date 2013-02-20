@@ -64,16 +64,17 @@ handleEvents app = do
       SDLK_RIGHTPAREN -> loopback app
       _               -> loopback app
     MouseButtonUp x y b -> case b of
-      ButtonLeft -> alter $ onMouseMotion (fromIntegral x) (fromIntegral y) >=> updateModel >=> updateModelView
+      ButtonLeft -> alter $ onMouseButtonLeft (fromIntegral x) (fromIntegral y) >=> updateModel >=> updateModelView
       _          -> loopback app
+    MouseMotion x y _ _ -> loopback app
     _ -> loopback app
  where quit     = return (False,app)
        nochange = return (True,app)
        loopback = handleEvents
        alter f  = f app >>= loopback
 
-onMouseMotion :: Double -> Double -> AppController -> IO AppController
-onMouseMotion x y app =
+onMouseButtonLeft :: Double -> Double -> AppController -> IO AppController
+onMouseButtonLeft x y app =
   let w          = appWidth app
       h          = appHeight app
       cz         = appZoom app
