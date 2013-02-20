@@ -1,6 +1,6 @@
 module Controller.App where
 
-import Control.Monad (when)
+import Control.Monad
 import Control.Monad.Trans (lift)
 import Controller.Bootstrap
 import Controller.CLI
@@ -64,21 +64,41 @@ handleEvents app = do
       SDLK_RIGHTPAREN -> loopback app
       _               -> loopback app
     MouseButtonUp x y b -> case b of
-      ButtonLeft -> do
-        putStr "updating fractal... "
-        let w          = appWidth app
-            h          = appHeight app
-            cz         = appZoom app
-            czf        = appZoomFactor app
-            (rx :+ ry) = toCart w h (fromIntegral x :+ fromIntegral y)
-            (nx,ny)    = (appX app + rx/cz,appY app + ry/cz)
-            newZ       = cz * czf
-        newModel <- updateModel (appProgression app) (appModel app) w h nx ny cz (appMaxIter app)
-        pixelizeSurface newModel $ stdViewFractalSurface $ appFView app
-        putStrLn "done!"
-        loopback $ app { appModel = newModel, appX = nx, appY = ny, appZoom = newZ }
+      ButtonLeft -> alter $ onMouseMotion (fromIntegral x) (fromIntegral y) >=> updateModel >=> updateModelView
       _          -> loopback app
     _ -> loopback app
  where quit     = return (False,app)
        nochange = return (True,app)
        loopback = handleEvents
+       alter f  = f app >>= loopback
+
+onMouseMotion :: Double -> Double -> AppController -> IO AppController
+onMouseMotion x y app =
+  let w          = appWidth app
+      h          = appHeight app
+      cz         = appZoom app
+      czf        = appZoomFactor app
+      (rx :+ ry) = toCart w h (x :+ y)
+      (nx,ny)    = (appX app + rx/cz,appY app + ry/cz)
+      newZ       = cz * czf
+  in return app { appX = nx, appY = ny, appZoom = newZ }
+
+updateModel :: AppController -> IO AppController
+updateModel app = do
+  let p = appProgression app
+      m = appModel app
+      w = appWidth app
+      h = appHeight app
+      x = appX app
+      y = appY app
+      z = appZoom app
+      i = appMaxIter app
+  putStr "updating fractal... "
+  newModel <- regen p m w h x y z i
+  putStrLn "done!"
+  return app { appModel = newModel }
+
+updateModelView :: AppController -> IO AppController
+updateModelView app = do
+  pixelizeSurface (appModel app) $ stdViewFractalSurface $ appFView app
+  return app
