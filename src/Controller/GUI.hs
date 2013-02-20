@@ -7,7 +7,9 @@ import Graphics.UI.SDL
 
 tryCreateZoomWindow :: Int -> Int -> Double -> MaybeT IO Surface
 tryCreateZoomWindow w h zf = do
-  zoom <- MaybeT $ tryCreateRGBSurface [HWSurface] w h 32 0 0 0 0
+  let rw = floor $ (fromIntegral w) / zf
+      rh = floor $ (fromIntegral h) / zf
+  zoom <- MaybeT $ tryCreateRGBSurface [HWSurface] rw rh 32 0 0 0 0
   lift $ setAlpha zoom [SrcAlpha] 127 -- TODO: Bool, what for?
   pixel <- lift $ mapRGB (surfaceGetPixelFormat zoom) 60 60 60
   lift $ fillRect zoom Nothing pixel

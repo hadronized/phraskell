@@ -7,6 +7,3 @@ data GUIView
         stdViewScreen   :: Surface
       , stdViewZoomArea :: Surface
     }
-
-expose :: GUIView -> IO ()
-expose view = return () -- TODO: to implement

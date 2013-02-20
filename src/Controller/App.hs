@@ -43,6 +43,8 @@ loop app = do
   when continue $ do
     -- TODO: here
     F.expose (appModel app) (appFView app)
+    (mx,my,_) <- getMouseState
+    exposeGUI mx my app
     SDL.flip $ appScreen app
     loop app
 
@@ -66,7 +68,6 @@ handleEvents app = do
     MouseButtonUp x y b -> case b of
       ButtonLeft -> alter $ onMouseButtonLeft (fromIntegral x) (fromIntegral y) >=> updateModel >=> updateModelView
       _          -> loopback app
-    MouseMotion x y _ _ -> loopback app
     _ -> loopback app
  where quit     = return (False,app)
        nochange = return (True,app)
@@ -103,3 +104,16 @@ updateModelView :: AppController -> IO AppController
 updateModelView app = do
   pixelizeSurface (appModel app) $ stdViewFractalSurface $ appFView app
   return app
+
+exposeGUI :: Int -> Int -> AppController -> IO AppController
+exposeGUI x y app = do
+  let rw = floor $ appWidth app / zf
+      rh = floor $ appHeight app / zf
+      rx = x - rw `div` 2
+      ry = y - rh `div` 2
+      zf = appZoomFactor app
+      gv = appGView app
+  case gv of
+    G.StandardView _ za -> do
+      blitSurface za Nothing (appScreen app) (Just $ Rect rx ry rw rh)
+      return app
