@@ -10,13 +10,19 @@ import Data.Maybe (maybe)
 import Graphics.UI.SDL as SDL
 import Model.Fractal
 import Model.Progression
-import View.Fractal
-import View.GUI
+import View.Fractal as F
+import View.GUI as G
 
 data AppController = AppController {
     appScreen      :: Surface
   , appProgression :: FractalProgression
+  , appWidth       :: Double
+  , appHeight      :: Double
+  , appX           :: Double
+  , appY           :: Double
+  , appZoom        :: Double
   , appZoomFactor  :: Double
+  , appMaxIter     :: Integer
   , appModel       :: FractalModel
   , appFView       :: FractalView
   , appGUIVisible  :: Bool
@@ -36,6 +42,7 @@ loop app = do
   (continue,newApp) <- handleEvents app
   when continue $ do
     -- TODO: here
+    F.expose (appModel app) (appFView app)
     SDL.flip $ appScreen app
     loop app
 
@@ -57,7 +64,19 @@ handleEvents app = do
       SDLK_RIGHTPAREN -> loopback app
       _               -> loopback app
     MouseButtonUp x y b -> case b of
-      ButtonLeft -> loopback app
+      ButtonLeft -> do
+        putStr "updating fractal... "
+        let w          = appWidth app
+            h          = appHeight app
+            cz         = appZoom app
+            czf        = appZoomFactor app
+            (rx :+ ry) = toCart w h (fromIntegral x :+ fromIntegral y)
+            (nx,ny)    = (appX app + rx/cz,appY app + ry/cz)
+            newZ       = cz * czf
+        newModel <- updateModel (appProgression app) (appModel app) w h nx ny cz (appMaxIter app)
+        pixelizeSurface newModel $ stdViewFractalSurface $ appFView app
+        putStrLn "done!"
+        loopback $ app { appModel = newModel, appX = nx, appY = ny, appZoom = newZ }
       _          -> loopback app
     _ -> loopback app
  where quit     = return (False,app)

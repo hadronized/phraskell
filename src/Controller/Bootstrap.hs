@@ -7,9 +7,9 @@ data Bootstrap = Bootstrap {
     bootFullscreen :: Bool
   , bootWidth      :: Int
   , bootHeight     :: Int
-  , bootX          :: Float
-  , bootY          :: Float
-  , bootZoom       :: Float
+  , bootX          :: Double
+  , bootY          :: Double
+  , bootZoom       :: Double
   , bootMaxIter    :: Integer
   , bootModel      :: FractalModel
 }

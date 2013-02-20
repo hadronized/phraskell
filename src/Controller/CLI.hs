@@ -8,9 +8,9 @@ data CLIFlag
   | CLIFullscreen         -- should the app in fullscreen mode?
   | CLIWidth      Int     -- width of the screen
   | CLIHeight     Int     -- heigth of the sceen
-  | CLIX          Float   -- x value
-  | CLIY          Float   -- y value
-  | CLIZoom       Float   -- zoom value
+  | CLIX          Double  -- x value
+  | CLIY          Double  -- y value
+  | CLIZoom       Double  -- zoom value
   | CLIMaxIter    Integer -- max iteration value
   | CLIModel      String  -- model flag
 
