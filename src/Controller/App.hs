@@ -11,15 +11,20 @@ import Graphics.UI.SDL as SDL
 import Model.Fractal
 import Model.Progression
 import View.Fractal
+import View.GUI
 
 data AppController = AppController {
     appScreen      :: Surface
-  , appFractalCtrl :: FractalController
-  , appGUICtrl     :: GUIController
+  , appProgression :: FractalProgression
+  , appZoomFactor  :: Double
+  , appModel       :: FractalModel
+  , appFView       :: FractalView
+  , appGUIVisible  :: Bool
+  , appGView       :: GUIView
 }
 
-runCtrl :: AppController -> IO ()
-runCtrl app = do
+run :: AppController -> IO ()
+run app = do
   showCursor False
   enableKeyRepeat 200 10
   -- TODO: make the first render
@@ -30,8 +35,7 @@ loop :: AppController -> IO ()
 loop app = do
   (continue,newApp) <- handleEvents app
   when continue $ do
-    runFractalCtrl (appFractalCtrl app)
-    runGUICtrl (appGUICtrl app)
+    -- TODO: here
     SDL.flip $ appScreen app
     loop app
 
@@ -43,7 +47,7 @@ handleEvents app = do
     Quit    -> quit
     KeyUp k -> case symKey k of
       SDLK_ESCAPE -> quit
-      SDLK_SPACE  -> loopback $ app { appGUICtrl = toggleGUI $ appGUICtrl app }
+      SDLK_SPACE  -> loopback $ app { appGUIVisible = toggle (appGUIVisible app) }
       SDLK_RETURN -> loopback app
       SDLK_MINUS  -> loopback app
       SDLK_PLUS   -> loopback app
@@ -53,9 +57,7 @@ handleEvents app = do
       SDLK_RIGHTPAREN -> loopback app
       _               -> loopback app
     MouseButtonUp x y b -> case b of
-      ButtonLeft -> loopback $ let gui = appGUICtl app
-                                   w   = gui
-                               in app { appFractalCtrl = regenModel (appFractalCtrl app)  }
+      ButtonLeft -> loopback app
       _          -> loopback app
     _ -> loopback app
  where quit     = return (False,app)

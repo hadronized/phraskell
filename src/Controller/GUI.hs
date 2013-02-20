@@ -5,14 +5,6 @@ import Control.Monad.Trans.Maybe
 import View.GUI
 import Graphics.UI.SDL
 
-data GUIController = GUIController {
-    guiCtrlVisible :: Bool
-  , guiCtrlView    :: GUIView
-}
-
-runGUICtrl :: GUIController -> IO ()
-runGUICtrl _ = return ()
-
 tryCreateZoomWindow :: Int -> Int -> Double -> MaybeT IO Surface
 tryCreateZoomWindow w h zf = do
   zoom <- MaybeT $ tryCreateRGBSurface [HWSurface] w h 32 0 0 0 0
@@ -21,5 +13,5 @@ tryCreateZoomWindow w h zf = do
   lift $ fillRect zoom Nothing pixel
   return zoom
 
-toggleGUI :: GUIController -> GUIController
-toggleGUI gui = gui { guiCtrlVisible = not $ guiCtrlVisible gui }
+toggle :: Bool -> Bool
+toggle = not

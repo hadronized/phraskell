@@ -1,7 +1,5 @@
 module Controller.CLI where
 
-import Control.Monad
-import Control.Monad.Trans.Maybe
 import System.Console.GetOpt
 
 -- CLI flag used to customize the applications behavior
@@ -34,8 +32,8 @@ options =
   ]
 
 -- Parse options and maybe return the CLI flags
-parseOpts :: [String] -> MaybeT IO [CLIFlag]
+parseOpts :: [String] -> IO (Maybe [CLIFlag])
 parseOpts args =
   case getOpt Permute options args of
-    (o,n,[])   -> return o
-    _          -> mzero
+    (o,n,[])   -> return $ Just o
+    _          -> return Nothing
