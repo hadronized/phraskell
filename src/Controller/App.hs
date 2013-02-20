@@ -43,7 +43,7 @@ handleEvents app = do
     Quit    -> quit
     KeyUp k -> case symKey k of
       SDLK_ESCAPE -> quit
-      SDLK_SPACE  -> loopback app
+      SDLK_SPACE  -> loopback $ app { appGUICtrl = toggleGUI $ appGUICtrl app }
       SDLK_RETURN -> loopback app
       SDLK_MINUS  -> loopback app
       SDLK_PLUS   -> loopback app
@@ -53,7 +53,9 @@ handleEvents app = do
       SDLK_RIGHTPAREN -> loopback app
       _               -> loopback app
     MouseButtonUp x y b -> case b of
-      ButtonLeft -> loopback app
+      ButtonLeft -> loopback $ let gui = appGUICtl app
+                                   w   = gui
+                               in app { appFractalCtrl = regenModel (appFractalCtrl app)  }
       _          -> loopback app
     _ -> loopback app
  where quit     = return (False,app)

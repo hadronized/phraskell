@@ -20,3 +20,6 @@ tryCreateZoomWindow w h zf = do
   pixel <- lift $ mapRGB (surfaceGetPixelFormat zoom) 60 60 60
   lift $ fillRect zoom Nothing pixel
   return zoom
+
+toggleGUI :: GUIController -> GUIController
+toggleGUI gui = gui { guiCtrlVisible = not $ guiCtrlVisible gui }
