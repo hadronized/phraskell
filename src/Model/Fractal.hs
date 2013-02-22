@@ -1,8 +1,6 @@
-module FractalModel where
+module Model.Fractal where
 
-import Data.Complex
-import Fractal
-import Viewer
+import Model.Progression
 
 type FractalRef = [[FComplex]]
 
@@ -21,26 +19,19 @@ offsets rx ry (x :+ y) = (x+rx) :+ (y+ry)
 
 data FractalModel
   = IterFrame [[Integer]]
+  -- | Buddhabrot ...
 
-  -- for x and y, evaluate the fractal equation
+-- for x and y, evaluate the fractal equation to generate a single element of the IterFrame model
 evalFrac :: FractalProgression -> FComplex -> FComplex -> Integer -> Integer
 evalFrac e z1 xy1 m = go z1 xy1 0
   where go z@(rp :+ ip) xy i
           | i > m = -1
           | rp^2 + ip^2 > 4.0 = i
-          | otherwise = go (e z xy) xy (i+1)
+          | otherwise = go ((progression e) z xy) xy (i+1)
 
--- make the iterations frame
--- TODO: add maxiter considerations
-mkIterFrame :: Viewer -> FractalModel
-mkIterFrame v =
-  let w     = viewerWidth v
-      h     = viewerHeight v
-      rx    = viewerX v
-      ry    = viewerY v
-      z     = viewerZoom v
-      p     = viewerProgression v
-      maxi  = viewerMaxIter v
-      ref   = screen w h $ offsets rx ry . oZoom z
-      eval  = map $ map (\(x :+ y) -> evalFrac p (0 :+ 0) (x :+ y) maxi)
+-- TODO: to simplify
+mkIterFrame :: FractalProgression -> Double -> Double -> Double -> Double -> Double -> Integer -> FractalModel
+mkIterFrame p w h xd yd z i =
+  let ref  = screen w h $ offsets xd yd . oZoom z
+      eval = map $ map (\(x :+ y) -> evalFrac p (start p) (x :+ y) i)
   in IterFrame $ eval ref

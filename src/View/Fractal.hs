@@ -1,21 +1,19 @@
-module Render where
+module View.Fractal where
 
-import Data.Bits
 import Control.Monad
-import Foreign
-import FractalModel
 import Graphics.UI.SDL as SDL
+import Foreign
+import Model.Fractal
 
-tryGetScreen :: Int -> Int -> Int -> String -> IO (Maybe Surface)
-tryGetScreen w h d t = do
-  SDL.init [InitVideo]
-  scr <- SDL.trySetVideoMode w h d [HWSurface, DoubleBuf]
-  SDL.setCaption t [] -- we don’t give a fuck about the title icon
-  return scr
+data FractalView
+  = StandardView {
+        stdViewScreenSurface  :: Surface
+      , stdViewFractalSurface :: Surface
+    }
 
--- destroy the render
-destroyRender :: IO ()
-destroyRender = SDL.quit
+expose :: FractalModel -> FractalView -> IO ()
+expose model view = case view of
+  StandardView screen fractal -> blitSurface fractal Nothing screen Nothing >> return ()
 
 type UV = (Int,Int)
 type UVs = [[UV]]
