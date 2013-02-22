@@ -45,7 +45,7 @@ loop app = do
     -- TODO: here
     F.expose (appModel newApp) (appFView newApp)
     (mx,my,_) <- getMouseState
-    when (appGUIVisible) $ exposeGUI mx my app
+    when (appGUIVisible app) $ exposeGUI mx my app
     SDL.flip $ appScreen newApp
     loop newApp
 
@@ -106,7 +106,7 @@ updateModelView app = do
   pixelizeSurface (appModel app) $ stdViewFractalSurface $ appFView app
   return app
 
-exposeGUI :: Int -> Int -> AppController -> IO AppController
+exposeGUI :: Int -> Int -> AppController -> IO ()
 exposeGUI x y app = do
   let rw = floor $ appWidth app / zf
       rh = floor $ appHeight app / zf
@@ -116,8 +116,8 @@ exposeGUI x y app = do
       gv = appGView app
   case gv of
     G.StandardView _ za -> do
-      blitSurface za Nothing (appScreen app) (Just $ Rect rx ry rw rh)
-      return app
+      _ <- blitSurface za Nothing (appScreen app) (Just $ Rect rx ry rw rh)
+      return ()
 
 changeZoomWindowSize :: (Double -> Double) -> AppController -> AppController
 changeZoomWindowSize f app = let zf = appZoomFactor app in app { appZoomFactor = f zf }

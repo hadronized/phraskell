@@ -15,7 +15,7 @@ data Bootstrap = Bootstrap {
 }
 
 def :: Bootstrap
-def = Bootstrap True 800 600 0 0 1 50 (IterFrame [])
+def = Bootstrap True 800 600 (-0.5) 0 1 50 (IterFrame [])
 
 bootstrap :: [CLIFlag] -> Bootstrap
 bootstrap = foldl alterBootstrap def
