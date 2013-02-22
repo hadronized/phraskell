@@ -63,7 +63,7 @@ handleEvents app = do
       SDLK_PLUS   -> loopback app
       _           -> loopback app
     KeyDown k -> case symKey k of
-      SDLK_LEFTPAREN  -> alter $ app
+      SDLK_LEFTPAREN  -> alter $ return . changeZoomWindowSize (*2) >=> updateGUIZoomWindow
       SDLK_RIGHTPAREN -> loopback app
       _               -> loopback app
     MouseButtonUp x y b -> case b of
@@ -119,15 +119,21 @@ exposeGUI x y app = do
       blitSurface za Nothing (appScreen app) (Just $ Rect rx ry rw rh)
       return app
 
-updateGUIZoomWindow :: AppController -> Int -> Int -> Double -> IO AppController
-updateGUIZoomWindow app w h zf = do
-  newZoomWindow <- runMaybeT $ tryCreateZoomWindow w h zf
-  case newZoomWindow of
-    Nothing         -> return app
-    Just zoomWindow -> do
-      let gv = appGView app
-      --freeSurface $ ...
-      case gv of
-        G.StandardView _ za -> let ngv = gv { stdViewZoomArea = zoomWindow }
-                               in return app { gv = ngv }
+changeZoomWindowSize :: (Double -> Double) -> AppController -> AppController
+changeZoomWindowSize f app = let zf = appZoomFactor app in app { appZoomFactor = f zf }
 
+updateGUIZoomWindow :: AppController -> IO AppController
+updateGUIZoomWindow app = do
+  let w  = appWidth app
+      h  = appHeight app
+      zf = appZoomFactor app
+  newZoomWindow <- runMaybeT $ tryCreateZoomWindow (floor w) (floor h) zf
+  case newZoomWindow of
+    Nothing -> return app
+    Just zoomWindow  -> do
+      let gv  = appGView app
+      case gv of
+        G.StandardView _ zw -> do
+          let ngv = gv { stdViewZoomArea = zoomWindow }
+          putStrLn $ "zf:" ++ show (appZoomFactor app)
+          return app { appGView = ngv }
