@@ -32,7 +32,7 @@ data AppController = AppController {
 
 run :: AppController -> IO ()
 run app = do
-  --showCursor False
+  showCursor False
   enableKeyRepeat 200 10
   -- TODO: make the first render
   loop app
@@ -45,7 +45,7 @@ loop app = do
     -- TODO: here
     F.expose (appModel newApp) (appFView newApp)
     (mx,my,_) <- getMouseState
-    exposeGUI mx my app
+    when (appGUIVisible) $ exposeGUI mx my app
     SDL.flip $ appScreen newApp
     loop newApp
 
