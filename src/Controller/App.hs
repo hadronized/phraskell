@@ -59,8 +59,8 @@ handleEvents app = do
       SDLK_ESCAPE -> quit
       SDLK_SPACE  -> loopback $ app { appGUIVisible = toggle (appGUIVisible app) }
       SDLK_RETURN -> alter $ updateModel >=> updateModelView
-      SDLK_MINUS  -> loopback app
-      SDLK_PLUS   -> loopback app
+      SDLK_MINUS  -> loopback $ changeMaxIter (50-) app
+      SDLK_PLUS   -> loopback $ changeMaxIter (50+) app
       _           -> loopback app
     KeyDown k -> case symKey k of
       SDLK_LEFTPAREN  -> alter $ return . changeZoomWindowSize (/1.05) >=> updateGUIZoomWindow
@@ -136,3 +136,6 @@ updateGUIZoomWindow app = do
         G.StandardView _ zw -> do
           let ngv = gv { stdViewZoomArea = zoomWindow }
           return app { appGView = ngv }
+
+changeMaxIter :: (Integer -> Integer) -> AppController -> AppController
+changeMaxIter f app = let mi = appMaxIter app in app { appMaxIter = f mi }
