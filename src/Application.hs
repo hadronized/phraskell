@@ -27,5 +27,5 @@ renderGUI app x y = do
       ry = y - rh `div` 2
       zf = viewerZoomf v
       g  = appGUI app
-  blitSurface (guiZoomArea g) Nothing (appScreen app) (Just $ Rect rx ry rw rh)
+  _ <- blitSurface (guiZoomArea g) Nothing (appScreen app) (Just $ Rect rx ry rw rh)
   return ()

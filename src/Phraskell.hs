@@ -1,13 +1,10 @@
 import Application
 import Control.Monad
-import Control.Monad.State
 import Control.Monad.Trans.Maybe
 import Default
-import Fractal
 import FractalModel
 import Graphics.UI.SDL as SDL
 import GUI
-import Render
 import System.Environment
 import System.Console.GetOpt
 import System.IO
@@ -19,8 +16,8 @@ import Viewer
 depth :: Double
 depth  = 32
 
-title :: String
-title  = "Phraskell"
+--title :: String
+--title  = "Phraskell"
 
 -- CLI flag used to customize the applications behavior
 data CLIFlag
@@ -53,7 +50,7 @@ options =
 parseOpts :: [String] -> MaybeT IO [CLIFlag]
 parseOpts args =
   case getOpt Permute options args of
-    (o,n,[])   -> return o
+    (o,_,[])   -> return o
     _          -> mzero
 
 -- Create a viewer with CLI flags
@@ -73,6 +70,7 @@ alterViewerWithFlag v f = case f of
   _             -> v
 
 -- Entry point
+main :: IO ()
 main = do
   hSetBuffering stdout NoBuffering
 
@@ -80,7 +78,7 @@ main = do
   params <- runMaybeT $ do
               cliOpts        <- (parseOpts args) 
               viewer         <- return $ mkViewer cliOpts
-              maybeScreen    <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) ([HWSurface,DoubleBuf] ++ if viewerFullscreen viewer then [Fullscreen] else [])
+              --maybeScreen    <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) ([HWSurface,DoubleBuf] ++ if viewerFullscreen viewer then [Fullscreen] else [])
               scr            <- MaybeT $ trySetVideoMode (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) [HWSurface,DoubleBuf]
               fractalSurface <- MaybeT $ tryCreateRGBSurface [HWSurface] (floor $ viewerWidth viewer) (floor $ viewerHeight viewer) (floor depth) 0 0 0 0
               gui            <- createGUI viewer
@@ -92,14 +90,14 @@ main = do
       launch app
         where launch app = do
                 showCursor False
-                enableKeyRepeat 200 10
+                _ <- enableKeyRepeat 200 10
                 onFractalFrameUpdate app >>= loop
               loop app = do
                 (goon,newApp) <- treatEvents app
                 case goon of
                   False -> return ()
                   True  -> do
-                    blitSurface (appFractalFrame app) Nothing (appScreen app) Nothing
+                    _ <- blitSurface (appFractalFrame app) Nothing (appScreen app) Nothing
                     (mx,my,_) <- getMouseState
                     when (appVisibleGUI app) $ renderGUI app mx my
                     SDL.flip $ appScreen app

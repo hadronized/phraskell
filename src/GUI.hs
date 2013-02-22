@@ -21,9 +21,9 @@ tryCreateZoomArea v = do
       rh = floor $ viewerHeight v / zf
       zf = viewerZoomf v
   zoomArea <- MaybeT $ tryCreateRGBSurface [HWSurface] rw rh 32 0 0 0 0
-  lift $ setAlpha zoomArea [SrcAlpha] 127 -- TODO: Bool, what for?
+  _ <- lift $ setAlpha zoomArea [SrcAlpha] 127 -- TODO: Bool, what for?
   pixel <- lift $ mapRGB (surfaceGetPixelFormat zoomArea) 60 60 60
-  lift $ fillRect zoomArea Nothing pixel
+  _ <- lift $ fillRect zoomArea Nothing pixel
   return zoomArea
 
 -- This function updates the zoom area according to the mouse position

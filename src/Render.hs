@@ -9,9 +9,9 @@ import Graphics.UI.SDL as SDL
 tryGetScreen :: Int -> Int -> Int -> String -> IO (Maybe Surface)
 tryGetScreen w h d t = do
   SDL.init [InitVideo]
-  screen <- SDL.trySetVideoMode w h d [HWSurface, DoubleBuf]
+  scr <- SDL.trySetVideoMode w h d [HWSurface, DoubleBuf]
   SDL.setCaption t [] -- we don’t give a fuck about the title icon
-  return screen
+  return scr
 
 -- destroy the render
 destroyRender :: IO ()
@@ -36,15 +36,13 @@ pixelize i  = Pixel $ (shift r 16) + (shift g 8) + b
         toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
 -}
   where (r,g,b) = toWord32 $ decodeColor (6*i) 
-        toWord32 (r,g,b) = (fromIntegral r, fromIntegral g, fromIntegral b)
+        toWord32 (x,y,z) = (fromIntegral x, fromIntegral y, fromIntegral z)
 
 -- pixelize an entire SDL Surface
 pixelizeSurface :: FractalModel -> Surface -> IO ()
 pixelizeSurface (IterFrame iterf) surface = do
   foldM_ (\row line -> foldM_ (\col x -> f (row,col) x >> return (col+1)) 0 line >> return (row+1)) 0 iterf
-    where width = surfaceGetWidth surface
-          height = surfaceGetHeight surface
-          f uv x = putPixel (pixelize x) surface uv
+    where f uv x = putPixel (pixelize x) surface uv
 
 -- to move in some utils module
 type RGBColor = (Word8,Word8,Word8)

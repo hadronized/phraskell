@@ -12,9 +12,9 @@ treatEvents app = do
   event <- pollEvent
   case event of
     NoEvent -> nochange
-    Quit    -> quit
+    Quit    -> exit
     KeyUp k -> case symKey k of
-      SDLK_ESCAPE    -> quit
+      SDLK_ESCAPE    -> exit
       SDLK_SPACE     -> alter $ \a -> let vg = appVisibleGUI a in return a { appVisibleGUI = not vg }
       SDLK_RETURN    -> alter onFractalFrameUpdate
       SDLK_MINUS     -> alter $ (\a -> let v    = appViewer a
@@ -42,7 +42,7 @@ treatEvents app = do
       ButtonLeft -> alter $ onIterFrameUpdate (fromIntegral x) (fromIntegral y)
       _ -> loopback app
     _  -> loopback app
- where quit     = return (False,app)
+ where exit     = return (False,app)
        nochange = return (True,app)
        alter f  = f app >>= loopback
        loopback = treatEvents
