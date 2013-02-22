@@ -43,11 +43,11 @@ loop app = do
   (continue,newApp) <- handleEvents app
   when continue $ do
     -- TODO: here
-    F.expose (appModel app) (appFView app)
+    F.expose (appModel newApp) (appFView newApp)
     (mx,my,_) <- getMouseState
     exposeGUI mx my app
-    SDL.flip $ appScreen app
-    loop app
+    SDL.flip $ appScreen newApp
+    loop newApp
 
 handleEvents :: AppController -> IO (Bool,AppController)
 handleEvents app = do
@@ -63,8 +63,8 @@ handleEvents app = do
       SDLK_PLUS   -> loopback app
       _           -> loopback app
     KeyDown k -> case symKey k of
-      SDLK_LEFTPAREN  -> alter $ return . changeZoomWindowSize (*2) >=> updateGUIZoomWindow
-      SDLK_RIGHTPAREN -> loopback app
+      SDLK_LEFTPAREN  -> alter $ return . changeZoomWindowSize (/1.05) >=> updateGUIZoomWindow
+      SDLK_RIGHTPAREN -> alter $ return . changeZoomWindowSize (*1.05) >=> updateGUIZoomWindow
       _               -> loopback app
     MouseButtonUp x y b -> case b of
       ButtonLeft -> alter $ (onMouseButtonLeft (fromIntegral x) (fromIntegral y) >=> updateModel >=> updateModelView)
@@ -135,5 +135,4 @@ updateGUIZoomWindow app = do
       case gv of
         G.StandardView _ zw -> do
           let ngv = gv { stdViewZoomArea = zoomWindow }
-          putStrLn $ "zf:" ++ show (appZoomFactor app)
           return app { appGView = ngv }
