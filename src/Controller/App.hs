@@ -2,6 +2,7 @@ module Controller.App where
 
 import Control.Monad
 import Control.Monad.Trans (lift)
+import Control.Monad.Trans.Maybe
 import Controller.Bootstrap
 import Controller.CLI
 import Controller.Fractal
@@ -31,7 +32,7 @@ data AppController = AppController {
 
 run :: AppController -> IO ()
 run app = do
-  showCursor False
+  --showCursor False
   enableKeyRepeat 200 10
   -- TODO: make the first render
   loop app
@@ -62,11 +63,11 @@ handleEvents app = do
       SDLK_PLUS   -> loopback app
       _           -> loopback app
     KeyDown k -> case symKey k of
-      SDLK_LEFTPAREN  -> loopback app
+      SDLK_LEFTPAREN  -> alter $ app
       SDLK_RIGHTPAREN -> loopback app
       _               -> loopback app
     MouseButtonUp x y b -> case b of
-      ButtonLeft -> alter $ onMouseButtonLeft (fromIntegral x) (fromIntegral y) >=> updateModel >=> updateModelView
+      ButtonLeft -> alter $ (onMouseButtonLeft (fromIntegral x) (fromIntegral y) >=> updateModel >=> updateModelView)
       _          -> loopback app
     _ -> loopback app
  where quit     = return (False,app)
@@ -95,7 +96,7 @@ updateModel app = do
       y = appY app
       z = appZoom app
       i = appMaxIter app
-  putStr "updating fractal... "
+  putStr $ "updating fractal [x:" ++ show x ++ " y:" ++ show y ++ " z:" ++ show z ++ " i:" ++ show i ++ "] ..."
   newModel <- regen p m w h x y z i
   putStrLn "done!"
   return app { appModel = newModel }
@@ -117,3 +118,16 @@ exposeGUI x y app = do
     G.StandardView _ za -> do
       blitSurface za Nothing (appScreen app) (Just $ Rect rx ry rw rh)
       return app
+
+updateGUIZoomWindow :: AppController -> Int -> Int -> Double -> IO AppController
+updateGUIZoomWindow app w h zf = do
+  newZoomWindow <- runMaybeT $ tryCreateZoomWindow w h zf
+  case newZoomWindow of
+    Nothing         -> return app
+    Just zoomWindow -> do
+      let gv = appGView app
+      --freeSurface $ ...
+      case gv of
+        G.StandardView _ za -> let ngv = gv { stdViewZoomArea = zoomWindow }
+                               in return app { gv = ngv }
+

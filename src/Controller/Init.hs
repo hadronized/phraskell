@@ -25,8 +25,8 @@ init b = do
       z     = bootZoom b
       mi    = bootMaxIter b
       model = bootModel b
-      p     = mandelbrot --bootProgression b
-      zf    = 2
+      p     = mandelbrot -- bootProgression b
+      zf    = 2 -- bootZoomFactor
   runMaybeT $ do
     screen <- tryGetScreen w h 32 title
     fractalFrame <- tryCreateSurface w h 32
