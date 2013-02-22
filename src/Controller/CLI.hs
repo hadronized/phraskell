@@ -28,7 +28,8 @@ options =
   , Option ['y']     ["ry","rely"]        (ReqArg (CLIY . read) "Y")           "y displacement"
   , Option ['z']     ["zoom"]             (ReqArg (CLIZoom . read) "ZOOM")     "zoom factor"
   , Option ['f']     ["fullscreen"]       (NoArg   CLIFullscreen)              "launch in fullscreen"
-  , Option ['m']     ["model"]            (ReqArg  CLIModel "iter")            "select the fractal model to use"
+  , Option ['m']     ["model"]            (ReqArg  CLIModel "MODEL")           "select the fractal model to use"
+  , Option ['i']     ["iter"]             (ReqArg (CLIMaxIter . read) "ITER")  "maximum iteration"
   ]
 
 -- Parse options and maybe return the CLI flags
