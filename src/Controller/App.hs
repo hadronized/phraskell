@@ -59,8 +59,8 @@ handleEvents app = do
       SDLK_ESCAPE -> quit
       SDLK_SPACE  -> loopback $ app { appGUIVisible = toggle (appGUIVisible app) }
       SDLK_RETURN -> alter $ updateModel >=> updateModelView
-      SDLK_MINUS  -> loopback $ changeMaxIter (50-) app
-      SDLK_PLUS   -> loopback $ changeMaxIter (50+) app
+      SDLK_MINUS  -> loopback $ changeMaxIter (\a -> a-50) app -- TODO: woah, pretty weird the - operator...
+      SDLK_PLUS   -> loopback $ changeMaxIter (+50) app
       _           -> loopback app
     KeyDown k -> case symKey k of
       SDLK_LEFTPAREN  -> alter $ return . changeZoomWindowSize (/1.05) >=> updateGUIZoomWindow
