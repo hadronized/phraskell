@@ -21,7 +21,7 @@ usage = usageInfo "usage: phraskell [OPTIONS]" options
 -- All possible CLI options
 options :: [OptDescr CLIFlag]
 options =
-  [ Option ['v','?'] ["version", "about"] (NoArg   CLIVersion)                 "show version"
+  [ Option ['v','h'] ["version", "about"] (NoArg   CLIVersion)                 "show version"
   , Option ['w']     ["width"]            (ReqArg (CLIWidth . read) "WIDTH")   "width of window"
   , Option ['h']     ["heigth"]           (ReqArg (CLIHeight . read) "HEIGHT") "height of the window"
   , Option ['x']     ["rx","relx"]        (ReqArg (CLIX . read) "X")           "x displacement"
