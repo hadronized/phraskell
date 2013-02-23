@@ -13,7 +13,7 @@ import View.Fractal as F
 import View.GUI as G
 
 title :: String
-title = "phraskell 0.1.3"
+title = "phraskell 0.2.0"
 
 init :: Bootstrap -> IO (Maybe AppController)
 init b = do
