@@ -28,6 +28,7 @@ data AppController = AppController {
   , appFView       :: FractalView
   , appGUIVisible  :: Bool
   , appGView       :: GUIView
+  , appModelProc   :: ModelProcessor
 }
 
 run :: AppController -> IO ()
@@ -97,7 +98,7 @@ updateModel app = do
       z = appZoom app
       i = appMaxIter app
   putStr $ "updating fractal [x:" ++ show x ++ " y:" ++ show y ++ " z:" ++ show z ++ " i:" ++ show i ++ "] ..."
-  newModel <- regen p m w h x y z i
+  newModel <- computeModel (appModelProc app) m p w h x y z i
   putStrLn "done!"
   return app { appModel = newModel }
 

@@ -13,6 +13,7 @@ data CLIFlag
   | CLIZoom       Double  -- zoom value
   | CLIMaxIter    Integer -- max iteration value
   | CLIModel      String  -- model flag
+  | CLIHard               -- have we to run the model computation on hardware?
 
 -- Display some usage information on standard output
 usage :: String
@@ -30,6 +31,7 @@ options =
   , Option ['f']     ["fullscreen"]       (NoArg   CLIFullscreen)              "launch in fullscreen"
   , Option ['m']     ["model"]            (ReqArg  CLIModel "MODEL")           "select the fractal model to use"
   , Option ['i']     ["iter"]             (ReqArg (CLIMaxIter . read) "ITER")  "maximum iteration"
+  , Option ['a']     ["hard"]             (NoArg CLIHard)                      "use hardware acceleration"
   ]
 
 -- Parse options and maybe return the CLI flags

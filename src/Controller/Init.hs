@@ -26,6 +26,7 @@ init b = do
       mi    = bootMaxIter b
       model = bootModel b
       p     = mandelbrot -- bootProgression b
+      mp    = bootModelProc b
       zf    = 2 -- bootZoomFactor
   runMaybeT $ do
     screen <- tryGetScreen w h 32 title
@@ -33,7 +34,7 @@ init b = do
     zoomWindow <- tryCreateZoomWindow w h zf
     let fractalView = F.StandardView screen fractalFrame
         guiView     = G.StandardView screen zoomWindow
-    return $ AppController screen p (fromIntegral w) (fromIntegral h) x y z zf mi model fractalView True guiView
+    return $ AppController screen p (fromIntegral w) (fromIntegral h) x y z zf mi model fractalView True guiView mp
   
 tryCreateSurface :: Int -> Int -> Int -> MaybeT IO Surface
 tryCreateSurface w h d = MaybeT $ SDL.tryCreateRGBSurface [HWSurface] w h d 0 0 0 0

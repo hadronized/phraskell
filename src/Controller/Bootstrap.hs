@@ -1,6 +1,7 @@
 module Controller.Bootstrap where
 
 import Controller.CLI
+import Controller.Fractal
 import Model.Fractal
 
 data Bootstrap = Bootstrap {
@@ -12,10 +13,11 @@ data Bootstrap = Bootstrap {
   , bootZoom       :: Double
   , bootMaxIter    :: Integer
   , bootModel      :: FractalModel
+  , bootModelProc  :: ModelProcessor
 }
 
 def :: Bootstrap
-def = Bootstrap True 800 600 (-0.5) 0 1 50 (IterFrame [])
+def = Bootstrap True 800 600 (-0.5) 0 1 50 (IterFrame []) SoftModelProcessor
 
 bootstrap :: [CLIFlag] -> Bootstrap
 bootstrap = foldl alterBootstrap def
@@ -30,6 +32,7 @@ alterBootstrap b f = case f of
   CLIZoom z      -> b { bootZoom = z }
   CLIMaxIter i   -> b { bootMaxIter = i }
   CLIModel str   -> b { bootModel = string2Model str } -- TODO: wat
+  --CLIHard        -> b { bootModelProc =  }
   _              -> b
 
 string2Model :: String -> FractalModel
