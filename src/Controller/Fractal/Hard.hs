@@ -3,10 +3,8 @@ module Controller.Fractal.Hard where
 import Control.Monad
 import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
-import Data.ByteString
-import Foreign.Storable
+import Foreign
 import Foreign.C.String
-import Foreign.Marshal.Alloc
 import Graphics.Rendering.OpenGL.Raw
 
 type ShaderProgram = GLuint
@@ -44,10 +42,13 @@ createShaderStage st = do
   guard $ stage /= 0
   return stage
 
-compileShaderStage :: ShaderStage -> ByteString -> MaybeT IO ()
+test :: Ptr GLchar -> ()
+test _ = ()
+
+compileShaderStage :: ShaderStage -> String -> IO Bool
 compileShaderStage s src = do
-  nbPtr <- lift $ malloc
-  lift $ poke nbPtr (fromIntegral 1 :: Int)
-  csrc <- lift $ newCString src
-  --glShaderSource s (fromIntegral 1) {- src -} {- number of src -}
-  return ()
+  with 1 $ \nb -> do
+    foo <- newCString src
+    with foo  $ \csrc -> do
+      glShaderSource s (fromIntegral 1) (castPtr csrc) nb
+      return True
