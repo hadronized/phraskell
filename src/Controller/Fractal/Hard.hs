@@ -49,11 +49,10 @@ createShaderProgram = do
 -}
 -- glShaderSource :: GLuint -> GLsizei -> Ptr (Ptr GLchar) -> Ptr GLint -> IO ()
 
-createShaderStage :: GLenum -> MaybeT IO ShaderStage
+createShaderStage :: GLenum -> IO (Maybe ShaderStage)
 createShaderStage st = do
-  stage <- lift $ glCreateShader st
-  guard $ stage /= 0
-  return stage
+  stage <- glCreateShader st
+  return $ if stage /= 0 then Just stage else Nothing
 
 compileShaderStage :: ShaderStage -> String -> IO Bool
 compileShaderStage s src = do
