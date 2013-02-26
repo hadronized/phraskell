@@ -10,6 +10,19 @@ import Graphics.Rendering.OpenGL.Raw
 type ShaderProgram = GLuint
 type ShaderStage   = GLuint
 
+type GLError = GLenum
+
+fromGLError :: GLError -> String
+fromGLError e = case e of
+  gl_NO_ERROR          -> []
+  gl_INVALID_ENUM      -> "invalid enum"
+  gl_INVALID_VALUE     -> "invalid value"
+  gl_INVALID_OPERATION -> "invalid operation"
+  gl_OUT_OF_MEMORY     -> "out of memory"
+  _                    -> "unkown error"
+
+--validateGL :: 
+
 vertexShaderStr,fragmentShaderStr :: String
 vertexShaderStr   = "#version 150\n\
                     \in vec2 co;\n\
@@ -42,9 +55,6 @@ createShaderStage st = do
   guard $ stage /= 0
   return stage
 
-test :: Ptr GLchar -> ()
-test _ = ()
-
 compileShaderStage :: ShaderStage -> String -> IO Bool
 compileShaderStage s src = do
   with 1 $ \nb -> do
@@ -52,3 +62,24 @@ compileShaderStage s src = do
     with foo  $ \csrc -> do
       glShaderSource s (fromIntegral 1) (castPtr csrc) nb
       return True
+
+checkCompilation :: ShaderStage -> IO (Maybe String)
+checkCompilation s = do
+  with 0 $ \status -> do
+    glGetShaderiv s gl_COMPILE_STATUS status
+    compiled <- toBool `liftM` peek status
+    if compiled == True
+      then return Nothing
+      else do
+      l <- compilationLog s
+      return $ Just l
+
+compilationLog :: ShaderStage -> IO String
+compilationLog s = do
+  with 0 $ \length -> do
+    glGetShaderiv s gl_INFO_LOG_LENGTH length
+    bytes <- fromIntegral `liftM` peek length
+    allocaBytes bytes $ \linfo -> do
+      glGetShaderInfoLog s (fromIntegral bytes) nullPtr linfo
+      str <- peekCString (castPtr linfo)
+      return str
