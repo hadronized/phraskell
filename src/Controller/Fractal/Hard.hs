@@ -56,12 +56,13 @@ fragmentShaderStr = "#version 150\n\
                     \  frag = vec4(0.f, 0.f, 0.f, 1.f);\n\
                     \}"
 
-{-
 createShaderProgram :: EitherT IO String ShaderProgram
 createShaderProgram = do
   vs <- EitherT $ createCompileShaderStage gl_VERTEX_SHADER vertexShaderStr
   fs <- EitherT $ createCompileShaderStage gl_FRAGMENT_SHADER fragmentShaderStr
--}
+  sp <- EitherT $ do
+    sp <- createProgramShader
+  return sp
 
 createCompileShaderStage :: GLenum -> String -> IO (Either String ShaderStage)
 createCompileShaderStage st src = do
