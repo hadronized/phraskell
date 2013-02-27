@@ -13,11 +13,11 @@ data Bootstrap = Bootstrap {
   , bootZoom       :: Double
   , bootMaxIter    :: Integer
   , bootModel      :: FractalModel
-  , bootModelProc  :: ModelProcessor
+  , bootModelProc  :: Bool
 }
 
 def :: Bootstrap
-def = Bootstrap True 800 600 (-0.5) 0 1 50 (IterFrame []) SoftModelProcessor
+def = Bootstrap True 800 600 (-0.5) 0 1 50 (IterFrame []) False
 
 bootstrap :: [CLIFlag] -> Bootstrap
 bootstrap = foldl alterBootstrap def
@@ -32,7 +32,7 @@ alterBootstrap b f = case f of
   CLIZoom z      -> b { bootZoom = z }
   CLIMaxIter i   -> b { bootMaxIter = i }
   CLIModel str   -> b { bootModel = string2Model str } -- TODO: wat
-  --CLIHard        -> b { bootModelProc =  }
+  CLIHard        -> b { bootModelProc = True }
   _              -> b
 
 string2Model :: String -> FractalModel

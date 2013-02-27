@@ -23,9 +23,9 @@ fromGLError e = case e of
   gl_OUT_OF_MEMORY     -> "out of memory"
   _                    -> "unknown error"
 
-{-
 newtype IOGL a = IOGL { runIOGL :: IO (Either GLError a) }
 
+{-
 instance Monad IOGL where
   return = IOGL . return . return
   IOGL glio >>= f = IOGL $ do
@@ -138,3 +138,9 @@ linkingLog sp = do
       glGetProgramInfoLog sp (fromIntegral bytes) nullPtr linfo
       str <- peekCString $ castPtr linfo
       return str
+
+useProgram :: ShaderProgram -> IO ()
+useProgram = glUseProgram
+
+unuseProgram :: IO ()
+unuseProgram = glUseProgram 0
