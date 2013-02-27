@@ -36,7 +36,7 @@ executable phraskell
                        Model.Progression
                        View.Fractal
                        View.GUI
-  build-depends:       base ==4.6.*, SDL ==0.6.*, mtl ==2.1.*, transformers ==0.3.*, OpenGLRaw >=1.3.0
+  build-depends:       base ==4.6.*, SDL ==0.6.*, mtl ==2.1.*, transformers ==0.3.*, OpenGLRaw >=1.3.0, either >=3.4
   hs-source-dirs:      src
   ghc-options:         -O2 -funbox-strict-fields
   ghc-prof-options:    -O2 -Wall -funbox-strict-fields -prof -auto-all -caf-all -rtsopts
