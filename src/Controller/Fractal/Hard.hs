@@ -8,7 +8,8 @@ import Foreign
 import Foreign.C.String
 import Graphics.Rendering.OpenGL.Raw
 
-type ShaderProgram = GLuint
+-- TODO: add errors handling
+
 type ShaderStage   = GLuint
 type ShaderProgram = GLuint
 
@@ -55,10 +56,12 @@ fragmentShaderStr = "#version 150\n\
                     \  frag = vec4(0.f, 0.f, 0.f, 1.f);\n\
                     \}"
 
+{-
 createShaderProgram :: EitherT IO String ShaderProgram
 createShaderProgram = do
   vs <- EitherT $ createCompileShaderStage gl_VERTEX_SHADER vertexShaderStr
-  fs <- Eithert $ createCompileShaderStage gl_FRAGMENT_SHADER fragmentShaderStr
+  fs <- EitherT $ createCompileShaderStage gl_FRAGMENT_SHADER fragmentShaderStr
+-}
 
 createCompileShaderStage :: GLenum -> String -> IO (Either String ShaderStage)
 createCompileShaderStage st src = do
@@ -98,13 +101,13 @@ compilationLog s = do
     bytes <- fromIntegral `liftM` peek length
     allocaBytes bytes $ \linfo -> do
       glGetShaderInfoLog s (fromIntegral bytes) nullPtr linfo
-      str <- peekCString (castPtr linfo)
+      str <- peekCString $ castPtr linfo
       return str
 
 createProgram :: IO (Maybe ShaderProgram)
 createProgram = do
   sp <- glCreateProgram
-  return $
+  return $ if sp /= 0 then Just sp else Nothing
 
 attachToProgram :: ShaderProgram -> ShaderStage -> IO ()
 attachToProgram = glAttachShader
@@ -112,3 +115,19 @@ attachToProgram = glAttachShader
 linkProgram :: ShaderProgram -> IO ()
 linkProgram sp = do
   glLinkProgram sp
+
+checkLinking :: ShaderProgram -> IO Bool
+checkLinking sp = do
+  with 0 $ \status -> do
+    glGetProgramiv sp gl_LINK_STATUS status
+    peek status >>= return . toBool
+
+linkingLog :: ShaderProgram -> IO String
+linkingLog sp = do
+  with 0 $ \length -> do
+    glGetProgramiv sp gl_INFO_LOG_LENGTH length
+    bytes <- fromIntegral `liftM` peek length
+    allocaBytes bytes $ \linfo -> do
+      glGetProgramInfoLog sp (fromIntegral bytes) nullPtr linfo
+      str <- peekCString $ castPtr linfo
+      return str
