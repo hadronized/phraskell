@@ -2,7 +2,6 @@ module Controller.Fractal.Hard where
 
 import Control.Monad
 import Control.Monad.Trans
-import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Either
 import Foreign
 import Foreign.C.String
@@ -56,13 +55,20 @@ fragmentShaderStr = "#version 150\n\
                     \  frag = vec4(0.f, 0.f, 0.f, 1.f);\n\
                     \}"
 
-createShaderProgram :: EitherT IO String ShaderProgram
-createShaderProgram = do
+getProgram :: EitherT String IO ShaderProgram
+getProgram = do
   vs <- EitherT $ createCompileShaderStage gl_VERTEX_SHADER vertexShaderStr
   fs <- EitherT $ createCompileShaderStage gl_FRAGMENT_SHADER fragmentShaderStr
-  sp <- EitherT $ do
-    sp <- createProgramShader
-  return sp
+  EitherT $ do
+    msp <- createShaderProgram
+    case msp of
+      Nothing -> mzero
+      Just sp -> do
+        attachToProgram sp vs
+        attachToProgram sp fs
+        linkProgram sp
+        linked <- checkLinking sp
+        if linked then return $ return sp else linkingLog sp >>= return . Left
 
 createCompileShaderStage :: GLenum -> String -> IO (Either String ShaderStage)
 createCompileShaderStage st src = do
@@ -105,8 +111,8 @@ compilationLog s = do
       str <- peekCString $ castPtr linfo
       return str
 
-createProgram :: IO (Maybe ShaderProgram)
-createProgram = do
+createShaderProgram :: IO (Maybe ShaderProgram)
+createShaderProgram = do
   sp <- glCreateProgram
   return $ if sp /= 0 then Just sp else Nothing
 
