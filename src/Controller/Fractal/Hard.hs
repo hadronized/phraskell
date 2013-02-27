@@ -9,11 +9,16 @@ import Graphics.Rendering.OpenGL.Raw
 
 -- TODO: add errors handling
 
+-- Shader Objects part
+
 type ShaderStage   = GLuint
 type ShaderProgram = GLuint
+type GLBuffer      = GLuint
+type GLBufferType  = GLenum
 
-type GLError = GLenum
+type GLError       = GLenum
 
+{-
 fromGLError :: GLError -> String
 fromGLError e = case e of
   gl_NO_ERROR          -> []
@@ -22,20 +27,6 @@ fromGLError e = case e of
   gl_INVALID_OPERATION -> "invalid operation"
   gl_OUT_OF_MEMORY     -> "out of memory"
   _                    -> "unknown error"
-
-newtype IOGL a = IOGL { runIOGL :: IO (Either GLError a) }
-
-{-
-instance Monad IOGL where
-  return = IOGL . return . return
-  IOGL glio >>= f = IOGL $ do
-    v <- glio
-    case v of
-      Left  e -> return $ Left e
-      Right x -> do
-        y   <- runIOGL $ f x
-        err <- glGetError
-        if err /= gl_NO_ERROR then return $ Left err else return y
 -}
 
 vertexShaderStr,fragmentShaderStr :: String
@@ -88,6 +79,9 @@ createShaderStage st = do
   stage <- glCreateShader st
   return $ if stage /= 0 then Just stage else Nothing
 
+deleteShaderStage :: ShaderStage -> IO ()
+deleteShaderStage = glDeleteShader
+
 compileShaderStage :: ShaderStage -> String -> IO ()
 compileShaderStage s src = do
   with 1 $ \nb -> do
@@ -127,7 +121,7 @@ checkLinking :: ShaderProgram -> IO Bool
 checkLinking sp = do
   with 0 $ \status -> do
     glGetProgramiv sp gl_LINK_STATUS status
-    peek status >>= return . toBool
+    toBool `liftM` peek status
 
 linkingLog :: ShaderProgram -> IO String
 linkingLog sp = do
@@ -144,3 +138,26 @@ useProgram = glUseProgram
 
 unuseProgram :: IO ()
 unuseProgram = glUseProgram 0
+
+-- Buffers Objects part
+
+createBuffer :: IO GLBuffer
+createBuffer = do
+  with 0 $ \bid -> do
+    glGenBuffers 1 bid
+    peek bid
+
+deleteBuffer :: GLBuffer -> IO ()
+deleteBuffer b = do
+  with b $ \pb -> glDeleteBuffers 1 pb
+
+bindBuffer :: GLBuffer -> GLBufferType -> IO ()
+bindBuffer = glBindBuffer
+
+unbindBuffer :: GLBuffer -> IO ()
+unbindBuffer b = bindBuffer b 0
+
+pushBuffer :: (Storable a ) => GLBuffer -> GLsizeiptr -> a -> GLenum -> IO ()
+pushBuffer b s a u = do
+  with a $ \d -> do
+    glBufferData b s d u
