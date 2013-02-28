@@ -13,7 +13,7 @@ import View.Fractal
 -- ModelProcessor, used to determine how to run the model computation.
 data ModelProcessor
   = SoftModelProcessor
-  | HardModelProcessor ShaderProgram
+  | HardModelProcessor ShaderProgram (BufferObject,BufferObject)
 
 computeModel :: ModelProcessor -> FractalModel -> FractalProgression -> Double -> Double -> Double -> Double -> Double -> Integer -> IO FractalModel
 computeModel mp m p w h x y z mi = case mp of

@@ -13,8 +13,8 @@ import Graphics.Rendering.OpenGL.Raw
 
 type ShaderStage   = GLuint
 type ShaderProgram = GLuint
-type GLBuffer      = GLuint
-type GLBufferType  = GLenum
+type BufferObject  = GLuint
+type BufferType    = GLenum
 
 type GLError       = GLenum
 
@@ -141,23 +141,44 @@ unuseProgram = glUseProgram 0
 
 -- Buffers Objects part
 
-createBuffer :: IO GLBuffer
+getBufferObjects :: EitherT String IO (BufferObject,BufferObject)
+getBufferObjects = do
+  vbo <- genVBO
+  ibo <- genIBO
+  return (vbo,ibo)
+
+genBuffer :: (Storable a) => [a] -> EitherT String IO BufferObject
+genBuffer d = do
+  buf <- lift createBuffer
+  lift $ bindBuffer gl_ARRAY_BUFFER buf -- actually create the buffer here
+  lift $ pushBuffer buf (fromIntegral 4) d gl_STATIC_DRAW
+  EitherT $ return $ return buf
+
+genVBO :: EitherT String IO BufferObject
+genVBO = genBuffer vertices
+  where vertices = concat $ [[-1,-1],[-1,1],[1,1],[1,-1]] :: [Int]
+
+genIBO :: EitherT String IO BufferObject
+genIBO = genBuffer indices
+  where indices = [0,1,2,0,2,3] :: [Int]
+
+createBuffer :: IO BufferObject
 createBuffer = do
   with 0 $ \bid -> do
     glGenBuffers 1 bid
     peek bid
 
-deleteBuffer :: GLBuffer -> IO ()
+deleteBuffer :: BufferObject -> IO ()
 deleteBuffer b = do
   with b $ \pb -> glDeleteBuffers 1 pb
 
-bindBuffer :: GLBuffer -> GLBufferType -> IO ()
+bindBuffer :: BufferObject -> BufferType -> IO ()
 bindBuffer = glBindBuffer
 
-unbindBuffer :: GLBuffer -> IO ()
+unbindBuffer :: BufferObject -> IO ()
 unbindBuffer b = bindBuffer b 0
 
-pushBuffer :: (Storable a ) => GLBuffer -> GLsizeiptr -> a -> GLenum -> IO ()
+pushBuffer :: (Storable a ) => BufferObject -> GLsizeiptr -> [a] -> GLenum -> IO ()
 pushBuffer b s a u = do
-  with a $ \d -> do
+  withArray a $ \d -> do
     glBufferData b s d u
