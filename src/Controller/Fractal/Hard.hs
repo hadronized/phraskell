@@ -50,16 +50,15 @@ getProgram :: EitherT String IO ShaderProgram
 getProgram = do
   vs <- EitherT $ createCompileShaderStage gl_VERTEX_SHADER vertexShaderStr
   fs <- EitherT $ createCompileShaderStage gl_FRAGMENT_SHADER fragmentShaderStr
-  EitherT $ do
-    msp <- createShaderProgram
-    case msp of
-      Nothing -> mzero
-      Just sp -> do
-        attachToProgram sp vs
-        attachToProgram sp fs
-        linkProgram sp
-        linked <- checkLinking sp
-        if linked then return $ return sp else linkingLog sp >>= return . Left
+  msp <- lift $ createShaderProgram
+  case msp of
+    Nothing -> left "unable to get the shader program"
+    Just sp -> do
+      lift $ attachToProgram sp vs
+      lift $ attachToProgram sp fs
+      lift $ linkProgram sp
+      linked <- lift $ checkLinking sp
+      if linked then return sp else (lift $ linkingLog sp) >>= left
 
 createCompileShaderStage :: GLenum -> String -> IO (Either String ShaderStage)
 createCompileShaderStage st src = do
@@ -140,12 +139,6 @@ unuseProgram :: IO ()
 unuseProgram = glUseProgram 0
 
 -- Buffers Objects part
-
-getBufferObjects :: EitherT String IO (BufferObject,BufferObject)
-getBufferObjects = do
-  vbo <- genVBO
-  ibo <- genIBO
-  return (vbo,ibo)
 
 genBuffer :: (Storable a) => [a] -> EitherT String IO BufferObject
 genBuffer d = do

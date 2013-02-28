@@ -4,6 +4,7 @@ import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
 import Controller.App
 import Controller.Fractal
+import Controller.Fractal.Hard
 import Controller.GUI
 import Controller.Bootstrap
 import Graphics.UI.SDL as SDL
@@ -47,3 +48,11 @@ tryGetScreen w h d t = do
 createModelProc :: Bool -> IO ModelProcessor
 createModelProc soft = do
   return SoftModelProcessor
+
+createHardModelProc :: IO ModelProcessor
+createHardModelProc = do
+  runEitherT $ do
+    ep  <- getProgram -- init the shader
+    vbo <- getVBO     -- init the buffers
+    ibo <- getIBO     -- 
+  
