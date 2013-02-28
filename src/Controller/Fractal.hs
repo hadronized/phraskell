@@ -19,6 +19,6 @@ computeModel :: ModelProcessor -> FractalModel -> FractalProgression -> Double -
 computeModel mp m p w h x y z mi = case mp of
   SoftModelProcessor -> case m of
     IterFrame _ -> return $ mkIterFrame p w h x y z mi
-  HardModelProcessor sp -> do
+  HardModelProcessor sp (vbo,ibo) -> do
     -- hihi
     return $ IterFrame []
