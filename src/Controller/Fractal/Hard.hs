@@ -164,7 +164,7 @@ genIBO = genBuffer indices
 
 createBuffer :: IO BufferObject
 createBuffer = do
-  with 0 $ \bid -> do
+  alloca $ \bid -> do
     glGenBuffers 1 bid
     peek bid
 
@@ -182,3 +182,25 @@ pushBuffer :: (Storable a ) => BufferObject -> GLsizeiptr -> [a] -> GLenum -> IO
 pushBuffer b s a u = do
   withArray a $ \d -> do
     glBufferData b s d u
+
+-- texture hihi
+
+type Texture     = GLuint
+type TextureType = GLuint
+
+createTexture :: IO Texture
+createTexture = do
+  alloca $ \tid -> do
+    glGenTextures 1 tid
+    peek tid
+
+deleteTexture :: Texture -> IO ()
+deleteTexture t = do
+  with t $ \tid -> do
+    glDeleteTextures 1 tid
+
+bindTexture :: TextureType -> Texture -> IO ()
+bindTexture = glBindTexture
+
+unbindTexture :: TextureType -> IO ()
+unbindTexture t = bindTexture t 0
